@@ -94,12 +94,24 @@ public class SchemaInitializer {
                 VALUES (?, ?, ?, ?, ?);
             """;
 
+
             try (PreparedStatement pStmt = conn.prepareStatement(seedAdminSql)) {
                 pStmt.setString(1, "usr-admin-001");
                 pStmt.setString(2, "System Admin");
                 pStmt.setString(3, "admin@startupledger.com");
                 pStmt.setString(4, PasswordUtil.hash("Admin@1234"));
                 pStmt.setString(5, "ADMIN");
+                pStmt.executeUpdate();
+            }
+
+
+            // 👷 3. NEW: Seed a Default Project Manager with securely hashed password "Manager@1234"
+            try (PreparedStatement pStmt = conn.prepareStatement(seedAdminSql)) {
+                pStmt.setString(1, "usr-mgr-001");
+                pStmt.setString(2, "Rafeed Mohammad"); // Matches your beautiful UI mockup name!
+                pStmt.setString(3, "rafeed@techtriads.com");
+                pStmt.setString(4, PasswordUtil.hash("Manager@1234"));
+                pStmt.setString(5, "MANAGER"); // 💡 Setting this explicitly to MANAGER triggers the redirect logic
                 pStmt.executeUpdate();
             }
 

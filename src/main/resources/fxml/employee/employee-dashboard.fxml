@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.StackPane?>
+
+<StackPane prefWidth="800.0" prefHeight="600.0" stylesheets="@../../css/styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+    <Label text="💼 Welcome to the Employee Tasks Workspace" styleClass="header-text"/>
+</StackPane>

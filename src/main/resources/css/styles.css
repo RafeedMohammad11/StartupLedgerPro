@@ -1,0 +1,254 @@
+/* Master Theme Variables */
+.root {
+    -fx-background-color: #121214;
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+/* Typography rules */
+.label {
+    -fx-text-fill: #E1E1E6;
+}
+.header-text {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFFFFF;
+}
+
+/* Forms & Text Fields */
+.text-field, .password-field {
+    -fx-background-color: #202024;
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 6px;
+    -fx-border-color: #323238;
+    -fx-border-radius: 6px;
+    -fx-padding: 10px;
+}
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #00B37E;
+}
+/* Buttons */
+.button-primary {
+    -fx-background-color: #00B37E;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-padding: 12px 24px;
+    -fx-cursor: hand;
+}
+.button-primary:hover {
+    -fx-background-color: #008E63;
+}
+
+/* Sidebar Layout styles */
+.sidebar {
+    -fx-background-color: #121214;
+    -fx-border-color: transparent #202024 transparent transparent;
+    -fx-border-width: 1px;
+}
+.sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #C4C4CC;
+    -fx-alignment: center-left;
+    -fx-padding: 12px 20px;
+    -fx-font-size: 14px;
+}
+.sidebar-btn:hover {
+    -fx-background-color: #202024;
+    -fx-text-fill: #00B37E;
+}
+
+/* Login screen field focus override */
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #00B37E;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(gaussian, #00B37E33, 8, 0, 0, 0);
+}
+
+/* Login button hover */
+.button-primary:hover {
+    -fx-background-color: #00C98C;
+    -fx-effect: dropshadow(gaussian, #00B37E55, 12, 0, 0, 2);
+}
+
+.button-primary:pressed {
+    -fx-background-color: #008E63;
+    -fx-effect: none;
+}
+
+
+
+
+
+/* ═══════════════════════════════════════════════
+   LIGHT THEME — Admin Dashboard
+   ═══════════════════════════════════════════════ */
+
+.light-root {
+    -fx-background-color: #F4F4F5;
+}
+
+/* Sidebar */
+.light-sidebar {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent #E4E4E7 transparent transparent;
+    -fx-border-width: 1;
+}
+
+.light-sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #52525B;
+    -fx-alignment: center-left;
+    -fx-padding: 11 20;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-background-radius: 8;
+}
+
+.light-sidebar-btn:hover {
+    -fx-background-color: #F4F4F5;
+    -fx-text-fill: #00B37E;
+}
+
+.light-sidebar-btn-active {
+    -fx-background-color: #ECFDF5;
+    -fx-text-fill: #00B37E;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+}
+
+/* Cards */
+.stat-card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 2);
+}
+
+.stat-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 20, 0, 0, 4);
+    -fx-border-color: #00B37E44;
+}
+
+.stat-number {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #18181B;
+}
+
+.stat-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #71717A;
+}
+
+.stat-icon {
+    -fx-font-size: 22px;
+}
+
+/* Section headers */
+.section-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #18181B;
+}
+
+.section-sub {
+    -fx-font-size: 12px;
+    -fx-text-fill: #A1A1AA;
+}
+
+/* Table / List rows */
+.light-table-row {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 10;
+    -fx-border-color: #F4F4F5;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+/* Role badges */
+.badge-admin {
+    -fx-background-color: #FEF3C7;
+    -fx-text-fill: #92400E;
+    -fx-background-radius: 20;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-manager {
+    -fx-background-color: #EDE9FE;
+    -fx-text-fill: #5B21B6;
+    -fx-background-radius: 20;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-employee {
+    -fx-background-color: #DBEAFE;
+    -fx-text-fill: #1E40AF;
+    -fx-background-radius: 20;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* Top header bar */
+.light-topbar {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent transparent #E4E4E7 transparent;
+    -fx-border-width: 1;
+}
+
+/* Action buttons */
+.btn-outline {
+    -fx-background-color: transparent;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #52525B;
+    -fx-padding: 8 16;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.btn-outline:hover {
+    -fx-border-color: #00B37E;
+    -fx-text-fill: #00B37E;
+}
+
+.btn-green {
+    -fx-background-color: #00B37E;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 8 18;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.btn-green:hover {
+    -fx-background-color: #00C98C;
+}
+
+.btn-danger {
+    -fx-background-color: #FEF2F2;
+    -fx-text-fill: #DC2626;
+    -fx-border-color: #FECACA;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #FEE2E2;
+}
+
+/* Divider */
+.light-divider {
+    -fx-background-color: #E4E4E7;
+}

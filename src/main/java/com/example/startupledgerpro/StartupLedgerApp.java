@@ -1,6 +1,8 @@
 package com.example.startupledgerpro;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class StartupLedgerApp extends Application {
@@ -14,14 +16,22 @@ public class StartupLedgerApp extends Application {
             System.out.println("✅ SYSTEM: SQLite Schema Initialized successfully!");
             System.out.println("✅ SYSTEM: Default Admin account verified/created.");
             System.out.println("=================================================");
+
+            // 2. Load the login gateway screen directly from the resources root
+            FXMLLoader fxmlLoader = new FXMLLoader(StartupLedgerApp.class.getResource("/fxml/login.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+
+            // 3. Configure the Primary Application Window Stage
+            stage.setTitle("StartupLedgerPro - Security Gateway");
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.centerOnScreen();
+            stage.show();
+
         } catch (Exception e) {
-            System.err.println("❌ CRITICAL: Database schema initialization failed!");
+            System.err.println("❌ CRITICAL: Application failed to boot!");
             e.printStackTrace();
         }
-
-        // 2. Temporary clean exit point for Day 1 infrastructure verification
-        System.out.println("🚀 Day 1 Core Ready. Exiting cleanly to proceed with building Models.");
-        System.exit(0);
     }
 
     public static void main(String[] args) {

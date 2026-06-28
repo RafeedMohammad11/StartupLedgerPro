@@ -22,7 +22,14 @@ public class PasswordUtil {
         }
     }
 
-    public static boolean verify(String password, String hashed) {
-        return hash(password).equals(hashed);
+//    public static boolean verify(String password, String hashed) {
+//        return hash(password).equals(hashed);
+//    }
+    public static boolean verifyPassword(String rawPassword, String storedHash) {
+        if (rawPassword == null || storedHash == null) {
+            return false;
+        }
+        String hashedInput = hash(rawPassword);
+        return hashedInput.equals(storedHash);
     }
 }
