@@ -1,42 +1,195 @@
 package com.example.startupledgerpro.controller;
 
+import com.example.startupledgerpro.factory.AppFactory;
+import com.example.startupledgerpro.model.Project;
+import com.example.startupledgerpro.session.SessionManager;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TableView;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+import java.util.List;
 
 public class ManagerDashboardController {
 
-    @FXML private TableView<Object> projectTableView; // Replace Object with your real Project domain model later
-    @FXML private TableColumn<Object, String> colProjectName;
-    @FXML private TableColumn<Object, String> colEngineer;
-    @FXML private TableColumn<Object, String> colTask;
-    @FXML private TableColumn<Object, String> colProgress;
+    @FXML private TableView<Project>           projectTableView;
+    @FXML private TableColumn<Project, String> colProjectName;
+    @FXML private TableColumn<Project, String> colEngineer;
+    @FXML private TableColumn<Project, Project> colProgress; // 💡 Upgraded to Project object type for custom node rendering
+    @FXML private Label                        welcomeLabel;
 
     @FXML
     public void initialize() {
-        // This runs automatically when JavaFX instantiates the dashboard.
-        // We will wire this up to pull projects straight from your ProjectRepository next!
+        // Show logged-in manager's name
+        String name = SessionManager.getInstance().getCurrentUser().getName();
+        welcomeLabel.setText("Welcome back, " + name);
+
+        // Wire table columns to Project fields
+        colProjectName.setCellValueFactory(
+                data -> new SimpleStringProperty(data.getValue().getName())
+        );
+        colEngineer.setCellValueFactory(
+                data -> new SimpleStringProperty(data.getValue().getManagerId())
+        );
+
+        // ── 🔥 UPGRADE: CONFIGURING CUSTOM PROGRESS BAR GRAPHICS COLUMN ──
+        colProgress.setCellValueFactory(
+                data -> new SimpleObjectProperty<>(data.getValue())
+        );
+        colProgress.setCellFactory(column -> new TableCell<Project, Project>() {
+            private final ProgressBar progressBar = new ProgressBar();
+            private final Label statusLabel = new Label();
+            private final VBox container = new VBox(4, statusLabel, progressBar);
+
+            {
+                container.setAlignment(Pos.CENTER_LEFT);
+                progressBar.setMaxWidth(Double.MAX_VALUE);
+                progressBar.getStyleClass().add("table-progress-bar");
+                statusLabel.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
+            }
+
+            @Override
+            protected void updateItem(Project project, boolean empty) {
+                super.updateItem(project, empty);
+
+                if (empty || project == null) {
+                    setGraphic(null);
+                } else {
+                    double progressValue = 0.0;
+                    String status = project.getStatus() != null ? project.getStatus().toString() : "PLANNING";
+
+                    // Map structural progress percentage bands matching your Admin style blueprint
+                    switch (status) {
+                        case "PLANNING" -> {
+                            progressValue = 0.20;
+                            statusLabel.setText("PLANNING (20%)");
+                            statusLabel.setStyle("-fx-text-fill: #7C4DFF;"); // Deep executive purple
+                        }
+                        case "ACTIVE", "IN_PROGRESS" -> {
+                            progressValue = 0.65;
+                            statusLabel.setText("ACTIVE (65%)");
+                            statusLabel.setStyle("-fx-text-fill: #00B37E;"); // Mint team green
+                        }
+                        case "COMPLETED" -> {
+                            progressValue = 1.0;
+                            statusLabel.setText("COMPLETED (100%)");
+                            statusLabel.setStyle("-fx-text-fill: #00875A;"); // Dark completion green
+                        }
+                        default -> {
+                            progressValue = 0.0;
+                            statusLabel.setText(status);
+                            statusLabel.setStyle("-fx-text-fill: #848D95;");
+                        }
+                    }
+
+                    progressBar.setProgress(progressValue);
+                    setGraphic(container);
+                }
+            }
+        });
+
+        // ── 🖱️ UPGRADE: ROW SELECTION DOUBLE-CLICK LISTENER ──────────────────
+        projectTableView.setRowFactory(tv -> {
+            TableRow<Project> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                // Route user to detailed page view when valid record row is double-clicked
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                    Project selectedProject = row.getItem();
+                    navigateToProjectDetails(selectedProject);
+                }
+            });
+            return row;
+        });
+
+        // Load projects from DB
+        loadProjects();
     }
 
+    // ── LOAD PROJECTS INTO TABLE ──────────────────────────────────
+    private void loadProjects() {
+        String managerId = SessionManager.getInstance().getCurrentUser().getId();
+        List<Project> projects = AppFactory.projectService
+                .getProjectsByManager(managerId);
+        projectTableView.setItems(FXCollections.observableArrayList(projects));
+    }
+
+    // ── NAVIGATION ROUTING LOGIC ──────────────────────────────────
+    private void navigateToProjectDetails(Project project) {
+        try {
+            System.out.println("Routing user to workspace detail inspection: " + project.getName());
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/manager/project-details.fxml")
+            );
+            Parent root = loader.load();
+
+            // Set scene swap cleanly inside current dashboard stage window frame
+            Stage stage = (Stage) projectTableView.getScene().getWindow();
+            stage.getScene().setRoot(root);
+            stage.setTitle("StartupLedger Pro — " + project.getName() + " Workspace");
+
+        } catch (Exception e) {
+            System.out.println("Routing exception triggered. Be sure to provision project-details.fxml next.");
+            e.printStackTrace();
+        }
+    }
+
+    // ── OPEN CREATE PROJECT MODAL ─────────────────────────────────
     @FXML
     private void handleCreateProject() {
-        System.out.println("Opening Create Project modal popup form card...");
-        // Intent: Launch a clean dialogue modal box to create database items
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/manager/create-project-modal.fxml")
+            );
+            Parent root = loader.load();
+
+            Stage modalStage = new Stage();
+            modalStage.setTitle("Create New Project");
+            modalStage.initModality(Modality.WINDOW_MODAL);
+            modalStage.initOwner(projectTableView.getScene().getWindow());
+            modalStage.setScene(new Scene(root));
+            modalStage.setResizable(false);
+
+            // Block until user closes the modal
+            modalStage.showAndWait();
+
+            // Refresh table if project was saved
+            CreateProjectModalController controller = loader.getController();
+            if (controller.isSaveClicked()) {
+                loadProjects();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+    // ── LOGOUT ────────────────────────────────────────────────────
     @FXML
     private void handleLogout() {
         try {
-            // Drop session state and fall back cleanly to your login layout frame
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+            SessionManager.getInstance().logout();
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/login.fxml")
+            );
             Parent root = loader.load();
             Stage stage = (Stage) projectTableView.getScene().getWindow();
-            stage.setScene(new Scene(root, 420, 550));
-            stage.setTitle("StartupLedger Pro — Security Gateway");
+            stage.setScene(new Scene(root, 1000, 700));
+            stage.setTitle("StartupLedger Pro — Login");
+            stage.setResizable(false);
             stage.centerOnScreen();
         } catch (Exception e) {
             e.printStackTrace();
