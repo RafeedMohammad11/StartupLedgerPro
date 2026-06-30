@@ -252,3 +252,122 @@
 .light-divider {
     -fx-background-color: #E4E4E7;
 }
+
+
+/* Styled Input Fields (TextField & TextArea) */
+.light-text-field, .light-text-area {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1C1F21;
+    -fx-background-radius: 8px;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1.5px;
+    -fx-padding: 10px;
+    -fx-font-size: 13px;
+}
+.light-text-field:focused, .light-text-area:focused {
+    -fx-border-color: #00B37E;
+    -fx-effect: dropshadow(gaussian, rgba(0, 179, 126, 0.15), 8, 0, 0, 0);
+}
+
+/* Styled ComboBox Dropdown */
+.light-combo-box {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8px;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1.5px;
+    -fx-padding: 4px;
+    -fx-font-size: 13px;
+}
+.light-combo-box:focused {
+    -fx-border-color: #00B37E;
+}
+.light-combo-box .list-cell {
+    -fx-text-fill: #1C1F21;
+    -fx-padding: 6px;
+}
+
+/* Styled DatePicker Component */
+.light-date-picker {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8px;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1.5px;
+    -fx-font-size: 13px;
+}
+.light-date-picker > .text-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #1C1F21;
+    -fx-padding: 8px;
+}
+.light-date-picker:focused {
+    -fx-border-color: #00B37E;
+}
+
+/* Secondary Actions / Neutral Cancel Button */
+.button-secondary {
+    -fx-background-color: #F4F4F5;
+    -fx-text-fill: #52525B;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 20px;
+    -fx-cursor: hand;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 8px;
+}
+.button-secondary:hover {
+    -fx-background-color: #E4E4E7;
+    -fx-text-fill: #18181B;
+}
+
+
+/* ═══════════════════════════════════════════════
+   LIGHT THEME TABLE VIEW OVERRIDES
+   ═══════════════════════════════════════════════ */
+
+.light-table {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8px;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+}
+
+/* Ensure column header labels are visible and styled */
+.light-table .column-header {
+    -fx-background-color: #F4F4F5;
+    -fx-border-color: transparent #E4E4E7 #E4E4E7 transparent;
+    -fx-padding: 10px;
+}
+
+.light-table .column-header .label {
+    -fx-text-fill: #52525B;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+/* Ensure data cell values are drawn explicitly in dark slate text */
+.light-table .table-cell {
+    -fx-text-fill: #18181B !important;
+    -fx-padding: 12px;
+    -fx-font-size: 13px;
+    /* Force text fill override over master dark-theme root defaults */
+    -fx-alignment: center-left;
+}
+
+/* Row states background styling */
+.light-table .table-row-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent transparent #F4F4F5 transparent;
+}
+
+.light-table .table-row-cell:filled:selected {
+    -fx-background-color: #ECFDF5;
+}
+
+.light-table .table-row-cell:filled:hover {
+    -fx-background-color: #FAFAFA;
+}

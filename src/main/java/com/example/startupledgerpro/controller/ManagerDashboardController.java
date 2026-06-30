@@ -127,22 +127,46 @@ public class ManagerDashboardController {
     }
 
     // ── NAVIGATION ROUTING LOGIC ──────────────────────────────────
-    private void navigateToProjectDetails(Project project) {
-        try {
-            System.out.println("Routing user to workspace detail inspection: " + project.getName());
+    // Inside ManagerDashboardController.java
 
+    // Inside ManagerDashboardController.java
+
+    private void navigateToProjectDetails(Project selectedProject) {
+        try {
+            // 1. Point to your details view FXML file
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/fxml/manager/project-details.fxml")
             );
-            Parent root = loader.load();
+            Parent root = loader.load(); // Load must happen first!
 
-            // Set scene swap cleanly inside current dashboard stage window frame
-            Stage stage = (Stage) projectTableView.getScene().getWindow();
-            stage.getScene().setRoot(root);
-            stage.setTitle("StartupLedger Pro — " + project.getName() + " Workspace");
+            // 2. Fetch the correct controller instance from the loader
+            ProjectDetailsController detailsController = loader.getController();
+
+            // 3. Inject the selected project context cleanly
+            System.out.println("Routing user to workspace detail inspection: " + selectedProject.getName());
+            detailsController.setProjectContext(selectedProject);
+
+            // 4. 🔥 FIX: Find the active window stage safely without incorrect casting
+            Stage stage = null;
+
+            // Loop through all open windows to find your active dashboard window stage
+            for (javafx.stage.Window window : javafx.stage.Window.getWindows()) {
+                if (window instanceof Stage && window.isShowing()) {
+                    stage = (Stage) window;
+                    break;
+                }
+            }
+
+            // 5. Swap the scene root view container over smoothly
+            if (stage != null && stage.getScene() != null) {
+                stage.getScene().setRoot(root);
+                stage.setTitle("StartupLedger Pro — " + selectedProject.getName());
+            } else {
+                System.err.println("Error: Could not locate the primary stage window context.");
+            }
 
         } catch (Exception e) {
-            System.out.println("Routing exception triggered. Be sure to provision project-details.fxml next.");
+            System.err.println("Failed to route transition into Project Workspace Detail view.");
             e.printStackTrace();
         }
     }

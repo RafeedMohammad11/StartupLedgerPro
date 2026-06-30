@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefWidth="500.0" spacing="24.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 16px; -fx-border-color: #E4E4E7; -fx-border-radius: 16px; -fx-border-width: 1px;"
+      stylesheets="@../../css/styles.css"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.startupledgerpro.controller.AssignTaskModalController">
+
+    <padding>
+        <Insets bottom="28.0" left="32.0" right="32.0" top="28.0" />
+    </padding>
+
+    <children>
+        <VBox spacing="6.0">
+            <children>
+                <Label style="-fx-text-fill: #18181B; -fx-font-size: 20px; -fx-font-weight: bold; -fx-letter-spacing: -0.5px;" text="Assign New Task Requirement" />
+                <Label style="-fx-text-fill: #71717A; -fx-font-size: 13px;" text="Issue explicit operational tickets mapped to engineer sprint milestones." />
+            </children>
+        </VBox>
+
+        <VBox spacing="18.0">
+            <children>
+                <VBox spacing="6.0">
+                    <children>
+                        <Label style="-fx-text-fill: #4B5563; -fx-font-weight: bold; -fx-font-size: 12px;" text="TASK TITLE *" />
+                        <TextField fx:id="titleField" promptText="e.g., Optimize Database Indices" styleClass="light-text-field" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="6.0">
+                    <children>
+                        <Label style="-fx-text-fill: #4B5563; -fx-font-weight: bold; -fx-font-size: 12px;" text="ASSIGNED ENGINEER BADGE ID *" />
+                        <ComboBox fx:id="engineerComboBox" maxWidth="Infinity" promptText="Select engineer assignee badge" styleClass="light-combo-box" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="6.0">
+                    <children>
+                        <Label style="-fx-text-fill: #4B5563; -fx-font-weight: bold; -fx-font-size: 12px;" text="TARGET DUE DATE *" />
+                        <DatePicker fx:id="dueDatePicker" maxWidth="Infinity" promptText="Select milestone deadline" styleClass="light-date-picker" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="6.0">
+                    <children>
+                        <Label style="-fx-text-fill: #4B5563; -fx-font-weight: bold; -fx-font-size: 12px;" text="TECHNICAL SCOPE BRIEF / REQ SPECIFICATION" />
+                        <TextArea fx:id="descriptionArea" prefHeight="110.0" promptText="Provide explicit user story acceptance criteria details..." styleClass="light-text-area" wrapText="true" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+
+        <HBox alignment="CENTER_RIGHT" spacing="14.0">
+            <children>
+                <Button onAction="#handleCancel" styleClass="button-secondary" text="Cancel" />
+                <Button onAction="#handleAssignTask" styleClass="button-primary" text="Assign Ticket" />
+            </children>
+        </HBox>
+    </children>
+</VBox>

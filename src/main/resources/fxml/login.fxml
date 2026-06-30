@@ -10,157 +10,246 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.shape.Rectangle?>
 
 <StackPane
         xmlns="http://javafx.com/javafx/17"
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="com.example.startupledgerpro.controller.LoginController"
         stylesheets="@../css/styles.css"
-        style="-fx-background-color: #0E0E10;">
+        style="-fx-background-color: #F4F6F8;">
 
-    <!-- Background grid pattern overlay -->
-    <Region style="-fx-background-color: transparent;
-                   -fx-border-color: transparent;"/>
+    <!-- Subtle left accent panel -->
+    <HBox>
+        <VBox prefWidth="420" style="-fx-background-color: #00B37E;"
+              alignment="CENTER">
+            <padding><Insets left="48" right="48"/></padding>
 
-    <!-- Centered card -->
-    <VBox alignment="CENTER" maxWidth="440" maxHeight="600"
-          style="-fx-background-color: #18181B;
-                 -fx-background-radius: 16;
-                 -fx-border-color: #27272A;
-                 -fx-border-radius: 16;
-                 -fx-border-width: 1;
-                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 40, 0, 0, 8);">
-        <padding>
-            <Insets top="48" right="48" bottom="48" left="48"/>
-        </padding>
-
-        <!-- Logo + Brand -->
-        <VBox alignment="CENTER" spacing="8">
-            <!-- Icon circle -->
-            <StackPane maxWidth="56" maxHeight="56"
-                       style="-fx-background-color: #00B37E22;
-                              -fx-background-radius: 14;
-                              -fx-border-color: #00B37E44;
-                              -fx-border-radius: 14;
-                              -fx-border-width: 1;
-                              -fx-pref-width: 56;
-                              -fx-pref-height: 56;">
+            <StackPane style="-fx-background-color: rgba(255,255,255,0.15);
+                              -fx-background-radius: 20;
+                              -fx-pref-width: 72; -fx-pref-height: 72;">
                 <Label text="SL"
-                       style="-fx-text-fill: #00B37E;
-                              -fx-font-size: 18px;
+                       style="-fx-text-fill: #FFFFFF;
+                              -fx-font-size: 26px;
                               -fx-font-weight: bold;"/>
+                <VBox.margin><Insets bottom="24"/></VBox.margin>
             </StackPane>
 
             <Label text="StartupLedger Pro"
-                   style="-fx-text-fill: #FAFAFA;
-                          -fx-font-size: 22px;
-                          -fx-font-weight: bold;
-                          -fx-padding: 8 0 0 0;"/>
-            <Label text="Financial and Project Management"
-                   style="-fx-text-fill: #71717A;
-                          -fx-font-size: 13px;"/>
-            <VBox.margin>
-                <Insets bottom="32"/>
-            </VBox.margin>
-        </VBox>
+                   style="-fx-text-fill: #FFFFFF;
+                          -fx-font-size: 26px;
+                          -fx-font-weight: bold;">
+                <VBox.margin><Insets bottom="12"/></VBox.margin>
+            </Label>
 
-        <!-- Divider -->
-        <Separator style="-fx-background-color: #27272A; -fx-opacity: 0.6;">
-            <VBox.margin><Insets bottom="28"/></VBox.margin>
-        </Separator>
+            <Label text="Financial &amp; Project Management&#10;built for modern startups."
+                   wrapText="true"
+                   textAlignment="CENTER"
+                   style="-fx-text-fill: rgba(255,255,255,0.80);
+                          -fx-font-size: 14px;
+                          -fx-line-spacing: 4;">
+                <VBox.margin><Insets bottom="48"/></VBox.margin>
+            </Label>
 
-        <!-- Form -->
-        <VBox spacing="20">
+            <Separator style="-fx-background-color: rgba(255,255,255,0.25);">
+                <VBox.margin><Insets bottom="40"/></VBox.margin>
+            </Separator>
 
-            <!-- Email field -->
-            <VBox spacing="8">
-                <Label text="Email address"
-                       style="-fx-text-fill: #A1A1AA;
-                              -fx-font-size: 13px;
-                              -fx-font-weight: bold;"/>
-                <TextField fx:id="emailField"
-                           promptText="you@company.com"
-                           style="-fx-background-color: #09090B;
-                                  -fx-text-fill: #FAFAFA;
-                                  -fx-prompt-text-fill: #3F3F46;
-                                  -fx-border-color: #27272A;
-                                  -fx-border-radius: 8;
-                                  -fx-background-radius: 8;
-                                  -fx-border-width: 1;
-                                  -fx-padding: 12 14;
-                                  -fx-font-size: 14px;"/>
+            <!-- Feature bullets -->
+            <VBox spacing="16" maxWidth="280">
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <StackPane style="-fx-background-color: rgba(255,255,255,0.20);
+                                      -fx-background-radius: 8;
+                                      -fx-pref-width: 32; -fx-pref-height: 32;">
+                        <Label text="📊" style="-fx-font-size: 14px;"/>
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label text="Real-time Analytics"
+                               style="-fx-text-fill: #FFFFFF;
+                                      -fx-font-weight: bold;
+                                      -fx-font-size: 13px;"/>
+                        <Label text="Track budgets and project health"
+                               style="-fx-text-fill: rgba(255,255,255,0.70);
+                                      -fx-font-size: 11px;"/>
+                    </VBox>
+                </HBox>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <StackPane style="-fx-background-color: rgba(255,255,255,0.20);
+                                      -fx-background-radius: 8;
+                                      -fx-pref-width: 32; -fx-pref-height: 32;">
+                        <Label text="👥" style="-fx-font-size: 14px;"/>
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label text="Team Management"
+                               style="-fx-text-fill: #FFFFFF;
+                                      -fx-font-weight: bold;
+                                      -fx-font-size: 13px;"/>
+                        <Label text="Roles, tasks and workload visibility"
+                               style="-fx-text-fill: rgba(255,255,255,0.70);
+                                      -fx-font-size: 11px;"/>
+                    </VBox>
+                </HBox>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <StackPane style="-fx-background-color: rgba(255,255,255,0.20);
+                                      -fx-background-radius: 8;
+                                      -fx-pref-width: 32; -fx-pref-height: 32;">
+                        <Label text="💰" style="-fx-font-size: 14px;"/>
+                    </StackPane>
+                    <VBox spacing="2">
+                        <Label text="Financial Control"
+                               style="-fx-text-fill: #FFFFFF;
+                                      -fx-font-weight: bold;
+                                      -fx-font-size: 13px;"/>
+                        <Label text="P&amp;L, burn rate and forecasting"
+                               style="-fx-text-fill: rgba(255,255,255,0.70);
+                                      -fx-font-size: 11px;"/>
+                    </VBox>
+                </HBox>
             </VBox>
 
-            <!-- Password field -->
-            <VBox spacing="8">
-                <HBox>
-                    <Label text="Password"
-                           style="-fx-text-fill: #A1A1AA;
-                                  -fx-font-size: 13px;
+        </VBox>
+
+        <!-- Right: Login form -->
+        <VBox HBox.hgrow="ALWAYS" alignment="CENTER"
+              style="-fx-background-color: #F4F6F8;">
+
+            <VBox maxWidth="400" spacing="0"
+                  style="-fx-background-color: #FFFFFF;
+                         -fx-background-radius: 16;
+                         -fx-border-color: #E5E9EB;
+                         -fx-border-radius: 16;
+                         -fx-border-width: 1;
+                         -fx-effect: dropshadow(gaussian,
+                                     rgba(0,0,0,0.08), 24, 0, 0, 4);">
+                <padding>
+                    <Insets top="40" right="40" bottom="40" left="40"/>
+                </padding>
+
+                <!-- Form header -->
+                <VBox spacing="6">
+                    <Label text="Welcome back 👋"
+                           style="-fx-text-fill: #1C1F21;
+                                  -fx-font-size: 22px;
                                   -fx-font-weight: bold;"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                </HBox>
-                <PasswordField fx:id="passwordField"
-                               promptText="••••••••••••"
-                               style="-fx-background-color: #09090B;
-                                      -fx-text-fill: #FAFAFA;
-                                      -fx-prompt-text-fill: #3F3F46;
-                                      -fx-border-color: #27272A;
+                    <Label text="Sign in to your StartupLedger account"
+                           style="-fx-text-fill: #848D95;
+                                  -fx-font-size: 13px;"/>
+                    <VBox.margin><Insets bottom="28"/></VBox.margin>
+                </VBox>
+
+                <!-- Email -->
+                <VBox spacing="6">
+                    <Label text="Email Address"
+                           style="-fx-text-fill: #3F3F46;
+                                  -fx-font-size: 12px;
+                                  -fx-font-weight: bold;"/>
+                    <TextField fx:id="emailField"
+                               promptText="you@company.com"
+                               style="-fx-background-color: #F8F9FA;
+                                      -fx-text-fill: #1C1F21;
+                                      -fx-prompt-text-fill: #B0B8C0;
+                                      -fx-border-color: #E5E9EB;
                                       -fx-border-radius: 8;
                                       -fx-background-radius: 8;
                                       -fx-border-width: 1;
-                                      -fx-padding: 12 14;
-                                      -fx-font-size: 14px;"/>
+                                      -fx-padding: 11 14;
+                                      -fx-font-size: 13px;"/>
+                    <VBox.margin><Insets bottom="16"/></VBox.margin>
+                </VBox>
+
+                <!-- Password -->
+                <VBox spacing="6">
+                    <Label text="Password"
+                           style="-fx-text-fill: #3F3F46;
+                                  -fx-font-size: 12px;
+                                  -fx-font-weight: bold;"/>
+                    <PasswordField fx:id="passwordField"
+                                   promptText="Enter your password"
+                                   style="-fx-background-color: #F8F9FA;
+                                          -fx-text-fill: #1C1F21;
+                                          -fx-prompt-text-fill: #B0B8C0;
+                                          -fx-border-color: #E5E9EB;
+                                          -fx-border-radius: 8;
+                                          -fx-background-radius: 8;
+                                          -fx-border-width: 1;
+                                          -fx-padding: 11 14;
+                                          -fx-font-size: 13px;"/>
+                    <VBox.margin><Insets bottom="20"/></VBox.margin>
+                </VBox>
+
+                <!-- Error box -->
+                <HBox fx:id="errorBox"
+                      spacing="8"
+                      alignment="CENTER_LEFT"
+                      visible="false"
+                      managed="false"
+                      style="-fx-background-color: #FEF2F2;
+                             -fx-border-color: #FECACA;
+                             -fx-border-radius: 8;
+                             -fx-background-radius: 8;
+                             -fx-border-width: 1;
+                             -fx-padding: 10 14;">
+                    <Label text="⚠"
+                           style="-fx-text-fill: #DC2626;
+                                  -fx-font-size: 13px;"/>
+                    <Label fx:id="errorLabel"
+                           wrapText="true"
+                           HBox.hgrow="ALWAYS"
+                           style="-fx-text-fill: #DC2626;
+                                  -fx-font-size: 12px;"/>
+                    <VBox.margin><Insets bottom="16"/></VBox.margin>
+                </HBox>
+
+                <!-- Sign in button -->
+                <Button fx:id="loginButton"
+                        text="Sign In to Dashboard"
+                        onAction="#handleLogin"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: #00B37E;
+                               -fx-text-fill: #FFFFFF;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 14px;
+                               -fx-background-radius: 8;
+                               -fx-padding: 12 0;
+                               -fx-cursor: hand;"/>
+
+                <!-- Divider -->
+                <Separator style="-fx-background-color: #E5E9EB;">
+                    <VBox.margin><Insets top="28" bottom="20"/></VBox.margin>
+                </Separator>
+
+                <!-- Default credentials hint -->
+                <VBox spacing="6"
+                      style="-fx-background-color: #F4F6F8;
+                             -fx-background-radius: 8;
+                             -fx-border-color: #E5E9EB;
+                             -fx-border-radius: 8;
+                             -fx-border-width: 1;
+                             -fx-padding: 12 14;">
+                    <Label text="🔑  Demo Credentials"
+                           style="-fx-text-fill: #52525B;
+                                  -fx-font-size: 11px;
+                                  -fx-font-weight: bold;"/>
+                    <HBox spacing="4">
+                        <Label text="Email:"
+                               style="-fx-text-fill: #848D95;
+                                      -fx-font-size: 11px;"/>
+                        <Label text="admin@startupledger.com"
+                               style="-fx-text-fill: #1C1F21;
+                                      -fx-font-size: 11px;
+                                      -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox spacing="4">
+                        <Label text="Password:"
+                               style="-fx-text-fill: #848D95;
+                                      -fx-font-size: 11px;"/>
+                        <Label text="Admin@1234"
+                               style="-fx-text-fill: #1C1F21;
+                                      -fx-font-size: 11px;
+                                      -fx-font-weight: bold;"/>
+                    </HBox>
+                </VBox>
+
             </VBox>
-
-            <!-- Error label -->
-            <HBox spacing="8" alignment="CENTER_LEFT"
-                  fx:id="errorBox"
-                  visible="false"
-                  managed="false"
-                  style="-fx-background-color: #2D0A0A;
-                         -fx-border-color: #7F1D1D;
-                         -fx-border-radius: 8;
-                         -fx-background-radius: 8;
-                         -fx-border-width: 1;
-                         -fx-padding: 10 14;">
-                <Label text="⚠"
-                       style="-fx-text-fill: #F87171; -fx-font-size: 14px;"/>
-                <Label fx:id="errorLabel"
-                       wrapText="true"
-                       style="-fx-text-fill: #F87171;
-                              -fx-font-size: 13px;"
-                       HBox.hgrow="ALWAYS"/>
-            </HBox>
-
-            <!-- Login button -->
-            <Button fx:id="loginButton"
-                    text="Sign in to your account"
-                    onAction="#handleLogin"
-                    maxWidth="Infinity"
-                    style="-fx-background-color: #00B37E;
-                           -fx-text-fill: #FFFFFF;
-                           -fx-font-weight: bold;
-                           -fx-font-size: 14px;
-                           -fx-background-radius: 8;
-                           -fx-padding: 13 0;
-                           -fx-cursor: hand;">
-                <VBox.margin><Insets top="4"/></VBox.margin>
-            </Button>
-
         </VBox>
-
-        <!-- Footer -->
-        <VBox alignment="CENTER" spacing="4">
-            <Separator style="-fx-background-color: #27272A; -fx-opacity: 0.6;">
-                <VBox.margin><Insets top="32" bottom="20"/></VBox.margin>
-            </Separator>
-            <Label text="Default Admin: admin@startupledger.com"
-                   style="-fx-text-fill: #3F3F46; -fx-font-size: 11px;"/>
-            <Label text="Password: Admin@1234"
-                   style="-fx-text-fill: #3F3F46; -fx-font-size: 11px;"/>
-        </VBox>
-
-    </VBox>
+    </HBox>
 </StackPane>

@@ -11,16 +11,18 @@ public class Task {
     private TaskStatus status;
     private final String dueDate;
 
-    public Task(String id, String projectId, String assigneeId, String title, String description, TaskStatus status, String dueDate) {
-        this.id = id;
-        this.projectId = projectId;
-        this.assigneeId = assigneeId;
-        this.title = title;
-        this.description = description;
-        this.status = status;
-        this.dueDate = dueDate;
+    // 💡 Private constructor driven explicitly via the Builder instance
+    private Task(Builder builder) {
+        this.id = builder.id;
+        this.projectId = builder.projectId;
+        this.assigneeId = builder.assigneeId;
+        this.title = builder.title;
+        this.description = builder.description;
+        this.status = builder.status;
+        this.dueDate = builder.deadline; // mapping internal field string matching parameters
     }
 
+    // Getters
     public String getId() { return id; }
     public String getProjectId() { return projectId; }
     public String getAssigneeId() { return assigneeId; }
@@ -29,5 +31,29 @@ public class Task {
     public TaskStatus getStatus() { return status; }
     public String getDueDate() { return dueDate; }
 
+    // Mutator for lifecycle states
     public void setStatus(TaskStatus status) { this.status = status; }
+
+    // ── 🧠 STATIC INNER BUILDER CLASS ──────────────────────────────
+    public static class Builder {
+        private String id;
+        private String projectId;
+        private String assigneeId;
+        private String title;
+        private String description;
+        private TaskStatus status = TaskStatus.TODO; // Clear default state assignment mapping
+        private String deadline;
+
+        public Builder id(String id) { this.id = id; return this; }
+        public Builder projectId(String projectId) { this.projectId = projectId; return this; }
+        public Builder assigneeId(String assigneeId) { this.assigneeId = assigneeId; return this; }
+        public Builder title(String title) { this.title = title; return this; }
+        public Builder description(String description) { this.description = description; return this; }
+        public Builder status(TaskStatus status) { this.status = status; return this; }
+        public Builder dueDate(String dueDate) { this.deadline = dueDate; return this; }
+
+        public Task build() {
+            return new Task(this);
+        }
+    }
 }

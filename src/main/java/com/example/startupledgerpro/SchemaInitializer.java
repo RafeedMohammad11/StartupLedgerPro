@@ -115,6 +115,15 @@ public class SchemaInitializer {
                 pStmt.executeUpdate();
             }
 
+            try (PreparedStatement pStmt = conn.prepareStatement(seedAdminSql)) {
+                pStmt.setString(1, "usr-emp-001");
+                pStmt.setString(2, "Ishak Khan"); // Matches your beautiful UI mockup name!
+                pStmt.setString(3, "ishak@gmail.com");
+                pStmt.setString(4, PasswordUtil.hash("Employee@1234"));
+                pStmt.setString(5, "EMPLOYEE"); // 💡 Setting this explicitly to MANAGER triggers the redirect logic
+                pStmt.executeUpdate();
+            }
+
         } catch (SQLException e) {
             throw new RuntimeException("Critical failure initializing application database schema", e);
         }
