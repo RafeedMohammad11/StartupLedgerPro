@@ -43,6 +43,10 @@ public class TaskService {
         return taskRepository.findByProjectId(projectId);
     }
 
+    public List<Task> getAllTasks() {
+        return taskRepository.findAll();
+    }
+
     public List<Task> getTasksByAssignee(String assigneeId) {
         return taskRepository.getTasksByAssignee(assigneeId);
     }

@@ -1,453 +1,199 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
 <HBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.startupledgerpro.controller.AdminDashboardController"
       stylesheets="@../../css/styles.css"
       style="-fx-background-color: #F4F4F5;"
       prefWidth="1280" prefHeight="800">
 
-    <!-- ═══════════════════════════════════════
-         SIDEBAR
-    ═══════════════════════════════════════ -->
     <VBox prefWidth="240" spacing="4" styleClass="light-sidebar">
         <padding><Insets top="0" right="12" bottom="24" left="12"/></padding>
 
-        <!-- Brand -->
-        <HBox alignment="CENTER_LEFT" spacing="12"
-              style="-fx-padding: 24 8 28 8;">
-            <StackPane style="-fx-background-color: #00B37E22;
-                              -fx-background-radius: 10;
-                              -fx-pref-width: 36; -fx-pref-height: 36;">
-                <Label text="SL" style="-fx-text-fill: #00B37E;
-                                        -fx-font-weight: bold;
-                                        -fx-font-size: 14px;"/>
+        <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 24 8 28 8;">
+            <StackPane style="-fx-background-color: #00B37E22; -fx-background-radius: 10; -fx-pref-width: 36; -fx-pref-height: 36;">
+                <Label text="SL" style="-fx-text-fill: #00B37E; -fx-font-weight: bold; -fx-font-size: 14px;"/>
             </StackPane>
             <VBox spacing="1">
-                <Label text="StartupLedger"
-                       style="-fx-font-weight: bold; -fx-font-size: 14px;
-                              -fx-text-fill: #18181B;"/>
-                <Label text="Admin Panel"
-                       style="-fx-font-size: 11px; -fx-text-fill: #A1A1AA;"/>
+                <Label text="StartupLedger" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #18181B;"/>
+                <Label text="Admin Panel" style="-fx-font-size: 11px; -fx-text-fill: #A1A1AA;"/>
             </VBox>
         </HBox>
 
-        <!-- Nav label -->
-        <Label text="MAIN MENU"
-               style="-fx-text-fill: #A1A1AA; -fx-font-size: 10px;
-                      -fx-font-weight: bold; -fx-padding: 0 8 8 8;"/>
-
-        <!-- Active nav item -->
-        <Button text="🏠  Dashboard" maxWidth="Infinity"
-                styleClass="light-sidebar-btn-active"/>
-        <Button text="👥  User Management" maxWidth="Infinity"
-                styleClass="light-sidebar-btn"/>
-        <Button text="📁  All Projects" maxWidth="Infinity"
-                styleClass="light-sidebar-btn"/>
-        <Button text="📊  Analytics" maxWidth="Infinity"
-                styleClass="light-sidebar-btn"/>
+        <Label text="MAIN MENU" style="-fx-text-fill: #A1A1AA; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 0 8 8 8;"/>
+        <Button text="Dashboard" maxWidth="Infinity" styleClass="light-sidebar-btn-active" onAction="#refreshDashboard"/>
+        <Button text="User Management" maxWidth="Infinity" styleClass="light-sidebar-btn" onAction="#refreshDashboard"/>
+        <Button text="Project Oversight" maxWidth="Infinity" styleClass="light-sidebar-btn" onAction="#refreshDashboard"/>
+        <Button text="Refresh Data" maxWidth="Infinity" styleClass="light-sidebar-btn" onAction="#refreshDashboard"/>
 
         <Separator style="-fx-background-color: #E4E4E7; -fx-padding: 8 0;">
             <VBox.margin><Insets top="12" bottom="12"/></VBox.margin>
         </Separator>
 
-        <Label text="ACCOUNT"
-               style="-fx-text-fill: #A1A1AA; -fx-font-size: 10px;
-                      -fx-font-weight: bold; -fx-padding: 0 8 8 8;"/>
-
-        <Button text="⚙️  Settings" maxWidth="Infinity"
-                styleClass="light-sidebar-btn"/>
-
-        <!-- Spacer -->
         <Region VBox.vgrow="ALWAYS"/>
 
-        <!-- User info card at bottom of sidebar -->
-        <VBox style="-fx-background-color: #F4F4F5;
-                     -fx-background-radius: 10;
-                     -fx-padding: 12;">
+        <VBox style="-fx-background-color: #F4F4F5; -fx-background-radius: 10; -fx-padding: 12;">
             <HBox spacing="10" alignment="CENTER_LEFT">
-                <StackPane style="-fx-background-color: #00B37E;
-                                  -fx-background-radius: 20;
-                                  -fx-pref-width: 34; -fx-pref-height: 34;">
-                    <Label text="SA"
-                           style="-fx-text-fill: white;
-                                  -fx-font-weight: bold;
-                                  -fx-font-size: 12px;"/>
+                <StackPane style="-fx-background-color: #00B37E; -fx-background-radius: 20; -fx-pref-width: 34; -fx-pref-height: 34;">
+                    <Label text="AD" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;"/>
                 </StackPane>
                 <VBox spacing="2" HBox.hgrow="ALWAYS">
-                    <Label text="System Admin"
-                           style="-fx-font-weight: bold; -fx-font-size: 12px;
-                                  -fx-text-fill: #18181B;"/>
-                    <Label text="admin@startupledger.com"
-                           style="-fx-font-size: 10px; -fx-text-fill: #A1A1AA;"/>
+                    <Label fx:id="sidebarNameLabel" text="System Admin" style="-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #18181B;"/>
+                    <Label fx:id="sidebarEmailLabel" text="admin@startupledger.com" style="-fx-font-size: 10px; -fx-text-fill: #A1A1AA;"/>
                 </VBox>
             </HBox>
-            <Button text="Sign Out" maxWidth="Infinity"
-                    styleClass="btn-danger"
-                    style="-fx-padding: 6 0; -fx-font-size: 12px; -fx-margin-top: 10;">
+            <Button text="Sign Out" maxWidth="Infinity" styleClass="btn-danger" onAction="#handleLogout">
                 <VBox.margin><Insets top="10"/></VBox.margin>
             </Button>
         </VBox>
     </VBox>
 
-    <!-- ═══════════════════════════════════════
-         MAIN CONTENT
-    ═══════════════════════════════════════ -->
     <VBox HBox.hgrow="ALWAYS" spacing="0">
-
-        <!-- Top bar -->
-        <HBox styleClass="light-topbar" alignment="CENTER_LEFT"
-              spacing="16" prefHeight="64">
+        <HBox styleClass="light-topbar" alignment="CENTER_LEFT" spacing="16" prefHeight="64">
             <padding><Insets left="32" right="32"/></padding>
             <VBox>
-                <Label text="Dashboard Overview"
-                       style="-fx-font-size: 18px; -fx-font-weight: bold;
-                              -fx-text-fill: #18181B;"/>
-                <Label text="Welcome back, System Admin"
-                       style="-fx-font-size: 12px; -fx-text-fill: #A1A1AA;"/>
+                <Label text="Dashboard Overview" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #18181B;"/>
+                <Label fx:id="topWelcomeLabel" text="Welcome back, System Admin" style="-fx-font-size: 12px; -fx-text-fill: #A1A1AA;"/>
             </VBox>
             <Region HBox.hgrow="ALWAYS"/>
-
-            <!-- Notification bell -->
-            <StackPane style="-fx-background-color: #F4F4F5;
-                              -fx-background-radius: 8;
-                              -fx-border-color: #E4E4E7;
-                              -fx-border-radius: 8;
-                              -fx-pref-width: 38; -fx-pref-height: 38;
-                              -fx-cursor: hand;">
-                <Label text="🔔" style="-fx-font-size: 15px;"/>
-            </StackPane>
-
-            <!-- Avatar -->
-            <StackPane style="-fx-background-color: #00B37E;
-                              -fx-background-radius: 20;
-                              -fx-pref-width: 38; -fx-pref-height: 38;">
-                <Label text="SA"
-                       style="-fx-text-fill: white; -fx-font-weight: bold;
-                              -fx-font-size: 13px;"/>
-            </StackPane>
+            <Button text="Refresh" styleClass="btn-outline" onAction="#refreshDashboard"/>
         </HBox>
 
-        <!-- Scrollable content -->
-        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
-                    style="-fx-background: #F4F4F5;
-                           -fx-background-color: #F4F4F5;
-                           -fx-border-color: transparent;">
-            <VBox spacing="28">
-                <padding><Insets top="32" right="32" bottom="32" left="32"/></padding>
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: #F4F4F5; -fx-background-color: #F4F4F5; -fx-border-color: transparent;">
+            <VBox spacing="24">
+                <padding><Insets top="28" right="32" bottom="32" left="32"/></padding>
 
-                <!-- ── STAT CARDS ROW ── -->
                 <HBox spacing="20">
-
-                    <!-- Card 1: Total Users -->
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="16">
-                        <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
-                        <HBox alignment="CENTER_LEFT">
-                            <StackPane style="-fx-background-color: #EDE9FE;
-                                              -fx-background-radius: 10;
-                                              -fx-pref-width: 44; -fx-pref-height: 44;">
-                                <Label text="👥" styleClass="stat-icon"/>
-                            </StackPane>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="↑ 2 this week"
-                                   style="-fx-text-fill: #00B37E;
-                                          -fx-font-size: 11px;
-                                          -fx-font-weight: bold;
-                                          -fx-background-color: #ECFDF5;
-                                          -fx-background-radius: 20;
-                                          -fx-padding: 3 8;"/>
-                        </HBox>
-                        <VBox spacing="4">
-                            <Label text="12" styleClass="stat-number"/>
-                            <Label text="Total Users" styleClass="stat-label"/>
-                        </VBox>
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="8">
+                        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                        <Label fx:id="totalUsersLabel" text="0" styleClass="stat-number"/>
+                        <Label text="Total Users" styleClass="stat-label"/>
                     </VBox>
-
-                    <!-- Card 2: Active Projects -->
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="16">
-                        <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
-                        <HBox alignment="CENTER_LEFT">
-                            <StackPane style="-fx-background-color: #DBEAFE;
-                                              -fx-background-radius: 10;
-                                              -fx-pref-width: 44; -fx-pref-height: 44;">
-                                <Label text="📁" styleClass="stat-icon"/>
-                            </StackPane>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="↑ 3 this month"
-                                   style="-fx-text-fill: #00B37E;
-                                          -fx-font-size: 11px;
-                                          -fx-font-weight: bold;
-                                          -fx-background-color: #ECFDF5;
-                                          -fx-background-radius: 20;
-                                          -fx-padding: 3 8;"/>
-                        </HBox>
-                        <VBox spacing="4">
-                            <Label text="8" styleClass="stat-number"/>
-                            <Label text="Active Projects" styleClass="stat-label"/>
-                        </VBox>
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="8">
+                        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                        <Label fx:id="activeProjectsLabel" text="0" styleClass="stat-number"/>
+                        <Label text="Active Projects" styleClass="stat-label"/>
                     </VBox>
-
-                    <!-- Card 3: Total Revenue -->
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="16">
-                        <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
-                        <HBox alignment="CENTER_LEFT">
-                            <StackPane style="-fx-background-color: #DCFCE7;
-                                              -fx-background-radius: 10;
-                                              -fx-pref-width: 44; -fx-pref-height: 44;">
-                                <Label text="💰" styleClass="stat-icon"/>
-                            </StackPane>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="↑ 18% vs last month"
-                                   style="-fx-text-fill: #00B37E;
-                                          -fx-font-size: 11px;
-                                          -fx-font-weight: bold;
-                                          -fx-background-color: #ECFDF5;
-                                          -fx-background-radius: 20;
-                                          -fx-padding: 3 8;"/>
-                        </HBox>
-                        <VBox spacing="4">
-                            <Label text="Tk 4,20,000" styleClass="stat-number"
-                                   style="-fx-font-size: 24px; -fx-font-weight: bold;
-                                          -fx-text-fill: #18181B;"/>
-                            <Label text="Total Revenue" styleClass="stat-label"/>
-                        </VBox>
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="8">
+                        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                        <Label fx:id="totalBudgetLabel" text="0.00" styleClass="stat-number" style="-fx-font-size: 24px;"/>
+                        <Label text="Total Project Budget" styleClass="stat-label"/>
                     </VBox>
-
-                    <!-- Card 4: Pending Tasks -->
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="16">
-                        <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
-                        <HBox alignment="CENTER_LEFT">
-                            <StackPane style="-fx-background-color: #FEF3C7;
-                                              -fx-background-radius: 10;
-                                              -fx-pref-width: 44; -fx-pref-height: 44;">
-                                <Label text="✅" styleClass="stat-icon"/>
-                            </StackPane>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="↓ 5 resolved"
-                                   style="-fx-text-fill: #F59E0B;
-                                          -fx-font-size: 11px;
-                                          -fx-font-weight: bold;
-                                          -fx-background-color: #FFFBEB;
-                                          -fx-background-radius: 20;
-                                          -fx-padding: 3 8;"/>
-                        </HBox>
-                        <VBox spacing="4">
-                            <Label text="24" styleClass="stat-number"/>
-                            <Label text="Pending Tasks" styleClass="stat-label"/>
-                        </VBox>
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="8">
+                        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                        <Label fx:id="pendingTasksLabel" text="0" styleClass="stat-number"/>
+                        <Label text="Pending Tasks" styleClass="stat-label"/>
                     </VBox>
-
                 </HBox>
 
-                <!-- ── BOTTOM ROW: Users + Recent Projects ── -->
-                <HBox spacing="20" VBox.vgrow="ALWAYS">
+                <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                    <tabs>
+                        <Tab text="Users">
+                            <HBox spacing="20">
+                                <VBox spacing="14" HBox.hgrow="ALWAYS" style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #E4E4E7; -fx-border-radius: 8; -fx-padding: 20;">
+                                    <HBox alignment="CENTER_LEFT">
+                                        <VBox>
+                                            <Label text="User Management" styleClass="section-title"/>
+                                            <Label text="Create accounts, deactivate users, and reset passwords." styleClass="section-sub"/>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Button text="Deactivate" styleClass="btn-danger" onAction="#handleDeactivateUser"/>
+                                        <Button text="Reset Password" styleClass="btn-outline" onAction="#handleResetPassword"/>
+                                    </HBox>
+                                    <TableView fx:id="usersTableView" VBox.vgrow="ALWAYS" styleClass="light-table">
+                                        <columns>
+                                            <TableColumn fx:id="colUserName" text="Name" prefWidth="220"/>
+                                            <TableColumn fx:id="colUserEmail" text="Email" prefWidth="260"/>
+                                            <TableColumn fx:id="colUserRole" text="Role" prefWidth="130"/>
+                                            <TableColumn fx:id="colUserStatus" text="Status" prefWidth="120"/>
+                                        </columns>
+                                        <columnResizePolicy>
+                                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                                        </columnResizePolicy>
+                                    </TableView>
+                                </VBox>
 
-                    <!-- Recent Users panel -->
-                    <VBox HBox.hgrow="ALWAYS" spacing="16"
-                          style="-fx-background-color: #FFFFFF;
-                                 -fx-background-radius: 12;
-                                 -fx-border-color: #E4E4E7;
-                                 -fx-border-radius: 12;
-                                 -fx-border-width: 1;">
-                        <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+                                <VBox prefWidth="300" spacing="12" style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #E4E4E7; -fx-border-radius: 8; -fx-padding: 20;">
+                                    <Label text="Create User" styleClass="section-title"/>
+                                    <TextField fx:id="nameField" promptText="Full name"/>
+                                    <TextField fx:id="emailField" promptText="Email address"/>
+                                    <TextField fx:id="phoneField" promptText="Phone"/>
+                                    <PasswordField fx:id="passwordField" promptText="Temporary password"/>
+                                    <ComboBox fx:id="roleComboBox" maxWidth="Infinity"/>
+                                    <Label fx:id="createUserValidationLabel" text="" wrapText="true" style="-fx-text-fill: #71717A; -fx-font-size: 11px;"/>
+                                    <Button text="Create Account" maxWidth="Infinity" styleClass="button-primary" onAction="#handleCreateUser"/>
+                                </VBox>
+                            </HBox>
+                        </Tab>
 
-                        <!-- Panel header -->
-                        <HBox alignment="CENTER_LEFT">
-                            <VBox>
-                                <Label text="Recent Users" styleClass="section-title"/>
-                                <Label text="Latest accounts created" styleClass="section-sub"/>
+                        <Tab text="Projects">
+                            <VBox spacing="14" style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #E4E4E7; -fx-border-radius: 8; -fx-padding: 20;">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <VBox>
+                                        <Label text="Project Oversight" styleClass="section-title"/>
+                                        <Label text="Review all projects and update their lifecycle state." styleClass="section-sub"/>
+                                    </VBox>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <ComboBox fx:id="projectStatusComboBox" prefWidth="170"/>
+                                    <Button text="Update Status" styleClass="button-primary" onAction="#handleUpdateProjectStatus"/>
+                                    <Button text="Delete Project" styleClass="btn-danger" onAction="#handleDeleteProject"/>
+                                </HBox>
+                                <TableView fx:id="projectsTableView" VBox.vgrow="ALWAYS" styleClass="light-table">
+                                    <columns>
+                                        <TableColumn fx:id="colProjectName" text="Project" prefWidth="260"/>
+                                        <TableColumn fx:id="colProjectManager" text="Manager" prefWidth="180"/>
+                                        <TableColumn fx:id="colProjectStatus" text="Status" prefWidth="130"/>
+                                        <TableColumn fx:id="colProjectBudget" text="Budget" prefWidth="140"/>
+                                        <TableColumn fx:id="colProjectDeadline" text="Deadline" prefWidth="130"/>
+                                    </columns>
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                                    </columnResizePolicy>
+                                </TableView>
                             </VBox>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Button text="View All" styleClass="btn-outline"/>
-                        </HBox>
+                        </Tab>
 
-                        <Separator style="-fx-background-color: #F4F4F5;"/>
-
-                        <!-- User row 1 -->
-                        <HBox alignment="CENTER_LEFT" spacing="12"
-                              style="-fx-padding: 10 12;
-                                     -fx-background-color: #FAFAFA;
-                                     -fx-background-radius: 8;">
-                            <StackPane style="-fx-background-color: #5B21B6;
-                                              -fx-background-radius: 18;
-                                              -fx-pref-width: 36; -fx-pref-height: 36;">
-                                <Label text="RI" style="-fx-text-fill: white;
-                                                        -fx-font-weight: bold;
-                                                        -fx-font-size: 12px;"/>
-                            </StackPane>
-                            <VBox spacing="2" HBox.hgrow="ALWAYS">
-                                <Label text="Rafeed Islam"
-                                       style="-fx-font-weight: bold; -fx-font-size: 13px;
-                                              -fx-text-fill: #18181B;"/>
-                                <Label text="rafeed@company.com"
-                                       style="-fx-font-size: 11px; -fx-text-fill: #A1A1AA;"/>
+                        <Tab text="Tasks">
+                            <VBox spacing="14" style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #E4E4E7; -fx-border-radius: 8; -fx-padding: 20;">
+                                <VBox>
+                                    <Label text="Task Overview" styleClass="section-title"/>
+                                    <Label text="All assigned and pending work across projects." styleClass="section-sub"/>
+                                </VBox>
+                                <TableView fx:id="tasksTableView" VBox.vgrow="ALWAYS" styleClass="light-table">
+                                    <columns>
+                                        <TableColumn fx:id="colTaskTitle" text="Task" prefWidth="320"/>
+                                        <TableColumn fx:id="colTaskAssignee" text="Assignee" prefWidth="180"/>
+                                        <TableColumn fx:id="colTaskStatus" text="Status" prefWidth="140"/>
+                                        <TableColumn fx:id="colTaskDueDate" text="Due Date" prefWidth="140"/>
+                                    </columns>
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                                    </columnResizePolicy>
+                                </TableView>
                             </VBox>
-                            <Label text="MANAGER" styleClass="badge-manager"/>
-                        </HBox>
+                        </Tab>
+                    </tabs>
+                </TabPane>
 
-                        <!-- User row 2 -->
-                        <HBox alignment="CENTER_LEFT" spacing="12"
-                              style="-fx-padding: 10 12;
-                                     -fx-background-color: #FAFAFA;
-                                     -fx-background-radius: 8;">
-                            <StackPane style="-fx-background-color: #1E40AF;
-                                              -fx-background-radius: 18;
-                                              -fx-pref-width: 36; -fx-pref-height: 36;">
-                                <Label text="NA" style="-fx-text-fill: white;
-                                                        -fx-font-weight: bold;
-                                                        -fx-font-size: 12px;"/>
-                            </StackPane>
-                            <VBox spacing="2" HBox.hgrow="ALWAYS">
-                                <Label text="Nusrat Akter"
-                                       style="-fx-font-weight: bold; -fx-font-size: 13px;
-                                              -fx-text-fill: #18181B;"/>
-                                <Label text="nusrat@company.com"
-                                       style="-fx-font-size: 11px; -fx-text-fill: #A1A1AA;"/>
-                            </VBox>
-                            <Label text="EMPLOYEE" styleClass="badge-employee"/>
-                        </HBox>
-
-                        <!-- User row 3 -->
-                        <HBox alignment="CENTER_LEFT" spacing="12"
-                              style="-fx-padding: 10 12;
-                                     -fx-background-color: #FAFAFA;
-                                     -fx-background-radius: 8;">
-                            <StackPane style="-fx-background-color: #92400E;
-                                              -fx-background-radius: 18;
-                                              -fx-pref-width: 36; -fx-pref-height: 36;">
-                                <Label text="SA" style="-fx-text-fill: white;
-                                                        -fx-font-weight: bold;
-                                                        -fx-font-size: 12px;"/>
-                            </StackPane>
-                            <VBox spacing="2" HBox.hgrow="ALWAYS">
-                                <Label text="System Admin"
-                                       style="-fx-font-weight: bold; -fx-font-size: 13px;
-                                              -fx-text-fill: #18181B;"/>
-                                <Label text="admin@startupledger.com"
-                                       style="-fx-font-size: 11px; -fx-text-fill: #A1A1AA;"/>
-                            </VBox>
-                            <Label text="ADMIN" styleClass="badge-admin"/>
-                        </HBox>
-
-                    </VBox>
-
-                    <!-- Recent Projects panel -->
-                    <VBox prefWidth="380" spacing="16"
-                          style="-fx-background-color: #FFFFFF;
-                                 -fx-background-radius: 12;
-                                 -fx-border-color: #E4E4E7;
-                                 -fx-border-radius: 12;
-                                 -fx-border-width: 1;">
-                        <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
-
-                        <HBox alignment="CENTER_LEFT">
-                            <VBox>
-                                <Label text="Recent Projects" styleClass="section-title"/>
-                                <Label text="Latest project activity" styleClass="section-sub"/>
-                            </VBox>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Button text="View All" styleClass="btn-outline"/>
-                        </HBox>
-
-                        <Separator style="-fx-background-color: #F4F4F5;"/>
-
-                        <!-- Project item 1 -->
-                        <VBox spacing="8"
-                              style="-fx-background-color: #FAFAFA;
-                                     -fx-background-radius: 8;
-                                     -fx-padding: 12;">
-                            <HBox alignment="CENTER_LEFT">
-                                <Label text="E-Commerce Platform"
-                                       style="-fx-font-weight: bold; -fx-font-size: 13px;
-                                              -fx-text-fill: #18181B;"/>
-                                <Region HBox.hgrow="ALWAYS"/>
-                                <Label text="ACTIVE"
-                                       style="-fx-background-color: #DCFCE7;
-                                              -fx-text-fill: #166534;
-                                              -fx-background-radius: 20;
-                                              -fx-padding: 3 10;
-                                              -fx-font-size: 11px;
-                                              -fx-font-weight: bold;"/>
-                            </HBox>
-                            <Label text="Web Application  •  Rafeed Islam"
-                                   style="-fx-font-size: 11px; -fx-text-fill: #A1A1AA;"/>
-                            <!-- Progress bar -->
-                            <HBox spacing="10" alignment="CENTER_LEFT">
-                                <ProgressBar progress="0.65" prefWidth="200"
-                                             style="-fx-accent: #00B37E;"/>
-                                <Label text="65%" style="-fx-font-size: 11px;
-                                                         -fx-text-fill: #52525B;
-                                                         -fx-font-weight: bold;"/>
-                            </HBox>
-                        </VBox>
-
-                        <!-- Project item 2 -->
-                        <VBox spacing="8"
-                              style="-fx-background-color: #FAFAFA;
-                                     -fx-background-radius: 8;
-                                     -fx-padding: 12;">
-                            <HBox alignment="CENTER_LEFT">
-                                <Label text="Inventory System"
-                                       style="-fx-font-weight: bold; -fx-font-size: 13px;
-                                              -fx-text-fill: #18181B;"/>
-                                <Region HBox.hgrow="ALWAYS"/>
-                                <Label text="PLANNING"
-                                       style="-fx-background-color: #EDE9FE;
-                                              -fx-text-fill: #5B21B6;
-                                              -fx-background-radius: 20;
-                                              -fx-padding: 3 10;
-                                              -fx-font-size: 11px;
-                                              -fx-font-weight: bold;"/>
-                            </HBox>
-                            <Label text="Desktop App  •  Nusrat Akter"
-                                   style="-fx-font-size: 11px; -fx-text-fill: #A1A1AA;"/>
-                            <HBox spacing="10" alignment="CENTER_LEFT">
-                                <ProgressBar progress="0.20" prefWidth="200"
-                                             style="-fx-accent: #8B5CF6;"/>
-                                <Label text="20%" style="-fx-font-size: 11px;
-                                                         -fx-text-fill: #52525B;
-                                                         -fx-font-weight: bold;"/>
-                            </HBox>
-                        </VBox>
-
-                        <!-- Project item 3 -->
-                        <VBox spacing="8"
-                              style="-fx-background-color: #FAFAFA;
-                                     -fx-background-radius: 8;
-                                     -fx-padding: 12;">
-                            <HBox alignment="CENTER_LEFT">
-                                <Label text="HR Management Portal"
-                                       style="-fx-font-weight: bold; -fx-font-size: 13px;
-                                              -fx-text-fill: #18181B;"/>
-                                <Region HBox.hgrow="ALWAYS"/>
-                                <Label text="COMPLETED"
-                                       style="-fx-background-color: #F0F9FF;
-                                              -fx-text-fill: #0369A1;
-                                              -fx-background-radius: 20;
-                                              -fx-padding: 3 10;
-                                              -fx-font-size: 11px;
-                                              -fx-font-weight: bold;"/>
-                            </HBox>
-                            <Label text="Web App  •  System Admin"
-                                   style="-fx-font-size: 11px; -fx-text-fill: #A1A1AA;"/>
-                            <HBox spacing="10" alignment="CENTER_LEFT">
-                                <ProgressBar progress="1.0" prefWidth="200"
-                                             style="-fx-accent: #0EA5E9;"/>
-                                <Label text="100%" style="-fx-font-size: 11px;
-                                                          -fx-text-fill: #52525B;
-                                                          -fx-font-weight: bold;"/>
-                            </HBox>
-                        </VBox>
-
-                    </VBox>
-
-                </HBox>
-
+                <Label fx:id="statusLabel" text="Ready." style="-fx-text-fill: #71717A; -fx-font-size: 12px;"/>
             </VBox>
         </ScrollPane>
     </VBox>
-
 </HBox>
