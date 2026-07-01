@@ -3,6 +3,7 @@ package com.example.startupledgerpro.controller;
 import com.example.startupledgerpro.factory.AppFactory;
 import com.example.startupledgerpro.model.Project;
 import com.example.startupledgerpro.model.Task;
+import com.example.startupledgerpro.session.SessionManager;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -19,17 +20,27 @@ import java.util.List;
 
 public class ProjectDetailsController {
 
-    @FXML private Label projectNameLabel;
-    @FXML private Label projectCategoryLabel;
-    @FXML private Label projectBudgetLabel;
-    @FXML private Label projectStatusLabel;
-    @FXML private Label projectDescriptionLabel;
+    @FXML
+    private Label projectNameLabel;
+    @FXML
+    private Label projectCategoryLabel;
+    @FXML
+    private Label projectBudgetLabel;
+    @FXML
+    private Label projectStatusLabel;
+    @FXML
+    private Label projectDescriptionLabel;
 
-    @FXML private TableView<Task> tasksTableView;
-    @FXML private TableColumn<Task, String> colTaskTitle;
-    @FXML private TableColumn<Task, String> colAssignee;
-    @FXML private TableColumn<Task, String> colTaskStatus;
-    @FXML private TableColumn<Task, String> colDueDate;
+    @FXML
+    private TableView<Task> tasksTableView;
+    @FXML
+    private TableColumn<Task, String> colTaskTitle;
+    @FXML
+    private TableColumn<Task, String> colAssignee;
+    @FXML
+    private TableColumn<Task, String> colTaskStatus;
+    @FXML
+    private TableColumn<Task, String> colDueDate;
 
     private Project currentProject;
 
@@ -58,7 +69,8 @@ public class ProjectDetailsController {
 
         // Populate labels
         projectNameLabel.setText(project.getName());
-        projectCategoryLabel.setText("Track: " + (project.getCategory() != null ? project.getCategory().name() : "N/A"));
+        projectCategoryLabel
+                .setText("Track: " + (project.getCategory() != null ? project.getCategory().name() : "N/A"));
         projectBudgetLabel.setText(String.format("Tk %,.2f", project.getBudget()));
 
         // Safely convert ProjectStatus enum to String text for the UI label widget
@@ -67,15 +79,15 @@ public class ProjectDetailsController {
         projectDescriptionLabel.setText(
                 project.getDescription() != null && !project.getDescription().isEmpty()
                         ? project.getDescription()
-                        : "No specific tracking description assigned to this project."
-        );
+                        : "No specific tracking description assigned to this project.");
 
         // Load project task records from the DB
         loadProjectTasks();
     }
 
     private void loadProjectTasks() {
-        if (currentProject == null) return;
+        if (currentProject == null)
+            return;
 
         // Flush any previous leftovers
         tasksTableView.getItems().clear();
@@ -91,12 +103,28 @@ public class ProjectDetailsController {
     private void handleBackToDashboard() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/manager/manager-dashboard.fxml")
-            );
+                    getClass().getResource("/fxml/manager/manager-dashboard.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) projectNameLabel.getScene().getWindow();
             stage.getScene().setRoot(root);
             stage.setTitle("StartupLedger Pro — Manager Dashboard");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleLogout() {
+        try {
+            SessionManager.getInstance().logout();
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/login.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) projectNameLabel.getScene().getWindow();
+            stage.setScene(new Scene(root, 1000, 700));
+            stage.setTitle("StartupLedger Pro — Login");
+            stage.setResizable(false);
+            stage.centerOnScreen();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -113,8 +141,7 @@ public class ProjectDetailsController {
         try {
             // 1. Load the Task Modal FXML
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/manager/assign-task-modal.fxml")
-            );
+                    getClass().getResource("/fxml/manager/assign-task-modal.fxml"));
             Parent root = loader.load();
 
             // 2. Pass the current project's ID to the modal controller
