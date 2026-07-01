@@ -8,6 +8,7 @@ import com.example.startupledgerpro.model.User;
 import com.example.startupledgerpro.model.enums.ProjectStatus;
 import com.example.startupledgerpro.model.enums.TaskStatus;
 import com.example.startupledgerpro.model.enums.UserRole;
+import com.example.startupledgerpro.service.TaskService;
 import com.example.startupledgerpro.session.SessionManager;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -75,6 +76,7 @@ public class ManagerDashboardController {
     private String selectedProjectId;
     private String selectedProjectName;
     private Stage boardViewStage;
+    private static final TaskService taskService = AppFactory.taskService;
 
     @FXML
     public void initialize() {
@@ -177,8 +179,8 @@ public class ManagerDashboardController {
     // ── SCRUM BOARD HELPERS ─────────────────────────────────────
     private void loadScrumBoard(String projectId) {
         List<Task> tasks = projectId == null
-                ? AppFactory.taskService.getAllTasks()
-                : AppFactory.taskService.getTasksByProject(projectId);
+                ? taskService.getAllTasks()
+                : taskService.getTasksByProject(projectId);
 
         configureDrop(todoColumn, TaskStatus.TODO);
         configureDrop(inProgressColumn, TaskStatus.IN_PROGRESS);
@@ -300,8 +302,7 @@ public class ManagerDashboardController {
             boolean success = false;
 
             if (dragboard.hasString()) {
-                AppFactory.taskService.updateTaskStatus(dragboard.getString(), targetStatus);
-                handleRefreshScrumBoard();
+                taskService.updateTaskStatus(dragboard.getString(), targetStatus);
                 success = true;
             }
 
@@ -441,7 +442,7 @@ public class ManagerDashboardController {
                 .filter(project -> project.getStatus() != null && project.getStatus() != ProjectStatus.COMPLETED)
                 .count();
         List<Task> tasks = projects.stream()
-                .flatMap(project -> AppFactory.taskService.getTasksByProject(project.getId()).stream())
+                .flatMap(project -> taskService.getTasksByProject(project.getId()).stream())
                 .toList();
         long pendingTasks = tasks.stream().filter(task -> task.getStatus() != TaskStatus.DONE).count();
         long assignedEngineers = tasks.stream()

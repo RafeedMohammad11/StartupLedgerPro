@@ -22,18 +22,18 @@ public class SqliteUserRepository implements UserRepository {
     @Override
     public User save(User user) {
         String sql = """
-            INSERT INTO users (id, name, email, password_hash, role, phone, is_active)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(id) DO UPDATE SET
-                name          = excluded.name,
-                email         = excluded.email,
-                password_hash = excluded.password_hash,
-                role          = excluded.role,
-                phone         = excluded.phone,
-                is_active     = excluded.is_active
-        """;
+                    INSERT INTO users (id, name, email, password_hash, role, phone, is_active, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(id) DO UPDATE SET
+                        name          = excluded.name,
+                        email         = excluded.email,
+                        password_hash = excluded.password_hash,
+                        role          = excluded.role,
+                        phone         = excluded.phone,
+                        is_active     = excluded.is_active
+                """;
         try (Connection conn = dbManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getId());
             stmt.setString(2, user.getName());
             stmt.setString(3, user.getEmail());
@@ -41,11 +41,12 @@ public class SqliteUserRepository implements UserRepository {
             stmt.setString(5, user.getRole().name());
             stmt.setString(6, user.getPhone());
             stmt.setInt(7, user.isActive() ? 1 : 0);
+            stmt.setString(8, user.getJoinDate());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error saving user to database", e);
         }
-        return user; // ← only change from your original
+        return user;
     }
 
     // ── FIND BY ID ─────────────────────────────────────────────────
@@ -53,10 +54,11 @@ public class SqliteUserRepository implements UserRepository {
     public Optional<User> findById(String id) {
         String sql = "SELECT * FROM users WHERE id = ?";
         try (Connection conn = dbManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) return Optional.of(mapRow(rs));
+                if (rs.next())
+                    return Optional.of(mapRow(rs));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error querying user by ID", e);
@@ -69,10 +71,11 @@ public class SqliteUserRepository implements UserRepository {
     public Optional<User> findByEmail(String email) {
         String sql = "SELECT * FROM users WHERE email = ?";
         try (Connection conn = dbManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, email);
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) return Optional.of(mapRow(rs));
+                if (rs.next())
+                    return Optional.of(mapRow(rs));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error querying user by email", e);
@@ -86,9 +89,10 @@ public class SqliteUserRepository implements UserRepository {
         String sql = "SELECT * FROM users";
         List<User> users = new ArrayList<>();
         try (Connection conn = dbManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) users.add(mapRow(rs));
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+            while (rs.next())
+                users.add(mapRow(rs));
         } catch (SQLException e) {
             throw new RuntimeException("Error querying all users", e);
         }
@@ -101,10 +105,11 @@ public class SqliteUserRepository implements UserRepository {
         String sql = "SELECT * FROM users WHERE role = ?";
         List<User> users = new ArrayList<>();
         try (Connection conn = dbManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, role.name());
             try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) users.add(mapRow(rs));
+                while (rs.next())
+                    users.add(mapRow(rs));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error querying users by role", e);
@@ -117,7 +122,7 @@ public class SqliteUserRepository implements UserRepository {
     public void delete(String id) {
         String sql = "DELETE FROM users WHERE id = ?";
         try (Connection conn = dbManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -134,7 +139,7 @@ public class SqliteUserRepository implements UserRepository {
                 rs.getString("password_hash"),
                 UserRole.valueOf(rs.getString("role")),
                 rs.getString("phone"),
-                rs.getInt("is_active") == 1
-        );
+                rs.getString("created_at"),
+                rs.getInt("is_active") == 1);
     }
 }

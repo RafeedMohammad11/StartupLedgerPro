@@ -8,11 +8,12 @@ import com.example.startupledgerpro.model.enums.UserRole;
 
 public class UserFactory {
 
-    public static User create(String id, String name, String email, String passwordHash, UserRole role, String phone, boolean isActive) {
+    public static User create(String id, String name, String email, String passwordHash, UserRole role, String phone,
+            String joinDate, boolean isActive) {
         return switch (role) {
-            case ADMIN -> new Admin(id, name, email, passwordHash, phone, isActive);
-            case MANAGER -> new Manager(id, name, email, passwordHash, phone, isActive);
-            case EMPLOYEE -> new Employee(id, name, email, passwordHash, phone, isActive);
+            case ADMIN -> new Admin(id, name, email, passwordHash, phone, joinDate, isActive);
+            case MANAGER -> new Manager(id, name, email, passwordHash, phone, joinDate, isActive);
+            case EMPLOYEE -> new Employee(id, name, email, passwordHash, phone, joinDate, isActive);
         };
     }
 }

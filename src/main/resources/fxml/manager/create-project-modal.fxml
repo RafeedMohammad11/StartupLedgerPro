@@ -73,6 +73,22 @@
                              -fx-font-size: 13px;"/>
         </VBox>
 
+        <!-- Project Manager -->
+        <VBox spacing="6">
+            <Label text="Assign Manager *"
+                   style="-fx-text-fill: #3F3F46;
+                          -fx-font-size: 13px;
+                          -fx-font-weight: bold;"/>
+            <ComboBox fx:id="managerComboBox"
+                      maxWidth="Infinity"
+                      promptText="Select project manager..."
+                      style="-fx-background-color: #FAFAFA;
+                             -fx-border-color: #E4E4E7;
+                             -fx-border-radius: 8;
+                             -fx-background-radius: 8;
+                             -fx-font-size: 13px;"/>
+        </VBox>
+
         <!-- Budget + Deadline row -->
         <HBox spacing="16">
             <VBox spacing="6" HBox.hgrow="ALWAYS">

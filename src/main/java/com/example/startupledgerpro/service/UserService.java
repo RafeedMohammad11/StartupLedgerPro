@@ -6,6 +6,7 @@ import com.example.startupledgerpro.model.enums.UserRole;
 import com.example.startupledgerpro.repository.UserRepository;
 import com.example.startupledgerpro.util.PasswordUtil;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,34 +14,52 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    //-----CREATE USER------------------------
-    public User createUser(String name, String email, String password, UserRole role, String phone){
-        //check for duplicate email
-        if(userRepository.findByEmail(email).isPresent())
-        {
+    // -----CREATE USER------------------------
+    public User createUser(String name, String email, String password, UserRole role, String phone) {
+        // check for duplicate email
+        if (userRepository.findByEmail(email).isPresent()) {
             throw new IllegalArgumentException("An account with this email already exists");
         }
 
         String id = "user-" + UUID.randomUUID().toString().substring(0, 8);
         String passwordHash = PasswordUtil.hash(password);
+        String joinDate = LocalDate.now().toString();
 
-        User user = UserFactory.create(id, name, email, passwordHash, role, phone, true);
+        User user = UserFactory.create(id, name, email, passwordHash, role, phone, joinDate, true);
         userRepository.save(user);
 
         return user;
     }
 
-    //-----GET ALL USERS---------------
-    public List<User> getAllUsers(){
+    public User createUser(String name, String email, String password, UserRole role, String phone, String joinDate) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("An account with this email already exists");
+        }
+
+        if (joinDate == null || joinDate.isBlank()) {
+            joinDate = LocalDate.now().toString();
+        }
+
+        String id = "user-" + UUID.randomUUID().toString().substring(0, 8);
+        String passwordHash = PasswordUtil.hash(password);
+
+        User user = UserFactory.create(id, name, email, passwordHash, role, phone, joinDate, true);
+        userRepository.save(user);
+
+        return user;
+    }
+
+    // -----GET ALL USERS---------------
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    //------GET BY ROLE----------------
-    public List<User> getUserByRole(UserRole role){
+    // ------GET BY ROLE----------------
+    public List<User> getUserByRole(UserRole role) {
         return userRepository.findByRole(role);
     }
 
@@ -69,8 +88,8 @@ public class UserService {
                     PasswordUtil.hash(newPassword),
                     user.getRole(),
                     user.getPhone(),
-                    user.isActive()
-            );
+                    user.getJoinDate(),
+                    user.isActive());
             userRepository.save(updated);
         });
     }

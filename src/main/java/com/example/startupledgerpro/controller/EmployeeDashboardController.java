@@ -1,6 +1,7 @@
 package com.example.startupledgerpro.controller;
 
 import com.example.startupledgerpro.factory.AppFactory;
+import com.example.startupledgerpro.model.Notification;
 import com.example.startupledgerpro.model.Task;
 import com.example.startupledgerpro.model.User;
 import com.example.startupledgerpro.model.enums.TaskStatus;
@@ -11,6 +12,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -20,18 +23,35 @@ import java.util.List;
 
 public class EmployeeDashboardController {
 
-    @FXML private Label welcomeLabel;
-    @FXML private Label emailLabel;
-    @FXML private Label assignedCountLabel;
-    @FXML private Label inProgressCountLabel;
-    @FXML private Label completedCountLabel;
+    @FXML
+    private Label welcomeLabel;
+    @FXML
+    private Label emailLabel;
+    @FXML
+    private Label notificationCountLabel;
+    @FXML
+    private Label notificationPreviewLabel;
+    @FXML
+    private Button notificationButton;
+    @FXML
+    private Label assignedCountLabel;
+    @FXML
+    private Label inProgressCountLabel;
+    @FXML
+    private Label completedCountLabel;
 
-    @FXML private TableView<Task> employeeTasksTableView;
-    @FXML private TableColumn<Task, String> colTaskId;
-    @FXML private TableColumn<Task, String> colTaskTitle;
-    @FXML private TableColumn<Task, String> colProjectId;
-    @FXML private TableColumn<Task, String> colTaskStatus;
-    @FXML private TableColumn<Task, String> colDueDate;
+    @FXML
+    private TableView<Task> employeeTasksTableView;
+    @FXML
+    private TableColumn<Task, String> colTaskId;
+    @FXML
+    private TableColumn<Task, String> colTaskTitle;
+    @FXML
+    private TableColumn<Task, String> colProjectId;
+    @FXML
+    private TableColumn<Task, String> colTaskStatus;
+    @FXML
+    private TableColumn<Task, String> colDueDate;
 
     private User loggedInUser;
 
@@ -52,6 +72,7 @@ public class EmployeeDashboardController {
         User currentUser = SessionManager.getInstance().getCurrentUser();
         if (currentUser != null) {
             setUserContext(currentUser);
+            refreshNotifications();
         }
     }
 
@@ -67,8 +88,11 @@ public class EmployeeDashboardController {
     }
 
     private void loadEmployeeDashboardData() {
-        if (loggedInUser == null) return;
+        if (loggedInUser == null)
+            return;
 
+        AppFactory.taskService.checkTaskDeadlinesForAssignee(loggedInUser.getId());
+        refreshNotifications();
         employeeTasksTableView.getItems().clear();
 
         // Pull task tracks from across your repositories
@@ -79,7 +103,8 @@ public class EmployeeDashboardController {
         System.out.println("Logged in User Badge ID: " + loggedInUser.getId());
         System.out.println("Total Tasks Pulled from SQLite: " + allAssignedTasks.size());
         for (Task t : allAssignedTasks) {
-            System.out.println(" -> Task Title: " + t.getTitle() + " | Status: " + t.getStatus() + " | Assignee: " + t.getAssigneeId());
+            System.out.println(" -> Task Title: " + t.getTitle() + " | Status: " + t.getStatus() + " | Assignee: "
+                    + t.getAssigneeId());
         }
         System.out.println("====================");
 
@@ -97,12 +122,65 @@ public class EmployeeDashboardController {
         employeeTasksTableView.setItems(FXCollections.observableArrayList(allAssignedTasks));
     }
 
+    private void refreshNotifications() {
+        if (loggedInUser == null)
+            return;
+        List<Notification> unreadNotifications = AppFactory.notificationService
+                .getUnreadNotificationsForUser(loggedInUser.getId());
+        int count = unreadNotifications.size();
+        notificationCountLabel.setText(count + " unread notification" + (count == 1 ? "" : "s"));
+        if (count > 0) {
+            Notification latest = unreadNotifications.get(0);
+            notificationPreviewLabel.setText(latest.getTitle() + " — " + latest.getMessage());
+            notificationButton.setDisable(false);
+        } else {
+            notificationPreviewLabel.setText("No new notifications");
+            notificationButton.setDisable(true);
+        }
+    }
+
+    @FXML
+    private void handleViewNotifications() {
+        if (loggedInUser == null)
+            return;
+
+        List<Notification> unreadNotifications = AppFactory.notificationService
+                .getUnreadNotificationsForUser(loggedInUser.getId());
+
+        if (unreadNotifications.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Notifications");
+            alert.setHeaderText("No unread notifications");
+            alert.setContentText("You are all caught up.");
+            alert.showAndWait();
+            return;
+        }
+
+        StringBuilder content = new StringBuilder();
+        for (Notification notification : unreadNotifications) {
+            content.append(notification.getTitle()).append("\n")
+                    .append(notification.getMessage()).append("\n\n");
+        }
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Unread Notifications");
+        alert.setHeaderText("You have " + unreadNotifications.size() + " unread notification"
+                + (unreadNotifications.size() == 1 ? "" : "s"));
+        alert.setContentText(content.toString().trim());
+        alert.getDialogPane().setPrefWidth(520);
+        alert.showAndWait();
+
+        unreadNotifications.forEach(notification -> AppFactory.notificationService.markAsRead(notification.getId()));
+        refreshNotifications();
+    }
+
     @FXML
     private void handleMarkInProgress() {
         Task selectedTask = employeeTasksTableView.getSelectionModel().getSelectedItem();
         if (selectedTask != null) {
             AppFactory.taskService.updateTaskStatus(selectedTask.getId(), TaskStatus.IN_PROGRESS);
             loadEmployeeDashboardData();
+            refreshNotifications();
         }
     }
 
@@ -112,6 +190,7 @@ public class EmployeeDashboardController {
         if (selectedTask != null) {
             AppFactory.taskService.updateTaskStatus(selectedTask.getId(), TaskStatus.DONE);
             loadEmployeeDashboardData();
+            refreshNotifications();
         }
     }
 

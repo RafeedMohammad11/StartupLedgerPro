@@ -25,6 +25,7 @@
                     <children>
                         <Label fx:id="welcomeLabel" style="-fx-text-fill: #18181B; -fx-font-size: 24px; -fx-font-weight: bold;" text="Welcome back, Engineer" />
                         <Label fx:id="emailLabel" style="-fx-text-fill: #71717A; -fx-font-size: 13px;" text="engineer@startupledger.pro" />
+                        <Label fx:id="notificationCountLabel" style="-fx-text-fill: #0F766E; -fx-font-size: 12px;" text="0 unread notifications" />
                     </children>
                 </VBox>
                 <Button onAction="#handleLogout" styleClass="btn-danger" text="🚪 Log Out" />
@@ -54,6 +55,16 @@
                     <children>
                         <Label styleClass="stat-label" text="✅ COMPLETED MILESTONES" />
                         <Label fx:id="completedCountLabel" styleClass="stat-number" style="-fx-text-fill: #008E63;" text="0" />
+                    </children>
+                </VBox>
+
+                <VBox prefWidth="300.0" spacing="8.0" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                    <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                    <children>
+                        <Label styleClass="stat-label" text="🔔 NOTIFICATIONS" />
+                        <Label fx:id="notificationCountLabel" styleClass="stat-number" text="0 unread notifications" />
+                        <Label fx:id="notificationPreviewLabel" wrapText="true" style="-fx-text-fill: #525252; -fx-font-size: 12px;" text="No new notifications" />
+                        <Button fx:id="notificationButton" onAction="#handleViewNotifications" styleClass="btn-outline" text="View Notifications" />
                     </children>
                 </VBox>
             </children>

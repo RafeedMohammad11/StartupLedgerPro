@@ -4,6 +4,7 @@ import com.example.startupledgerpro.model.Project;
 import com.example.startupledgerpro.model.enums.ProjectCategory;
 import com.example.startupledgerpro.model.enums.ProjectStatus;
 import com.example.startupledgerpro.repository.ProjectRepository;
+import com.example.startupledgerpro.service.NotificationService;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,14 +13,16 @@ import java.util.UUID;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final NotificationService notificationService;
 
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(ProjectRepository projectRepository, NotificationService notificationService) {
         this.projectRepository = projectRepository;
+        this.notificationService = notificationService;
     }
 
     // ── CREATE PROJECT ────────────────────────────────────────────
     public Project createProject(String name, String description, String managerId,
-                                 ProjectCategory category, double budget, String deadline) {
+            ProjectCategory category, double budget, String deadline) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Project name must not be empty.");
         }
@@ -39,6 +42,11 @@ public class ProjectService {
                 .build();
 
         projectRepository.save(project);
+        if (managerId != null && !managerId.isBlank()) {
+            notificationService.createIfMissing(managerId,
+                    "New project assigned: " + name,
+                    "A new project '" + name + "' has been assigned to you.");
+        }
         return project;
     }
 

@@ -2,8 +2,10 @@ package com.example.startupledgerpro.controller;
 
 import com.example.startupledgerpro.factory.AppFactory;
 import com.example.startupledgerpro.model.Project;
+import com.example.startupledgerpro.model.User;
 import com.example.startupledgerpro.model.enums.ProjectCategory;
 import com.example.startupledgerpro.model.enums.ProjectStatus;
+import com.example.startupledgerpro.model.enums.UserRole;
 import com.example.startupledgerpro.session.SessionManager;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -17,12 +19,20 @@ import java.util.UUID;
 
 public class CreateProjectModalController {
 
-    @FXML private TextField             nameField;
-    @FXML private ComboBox<ProjectCategory> categoryComboBox;
-    @FXML private TextField             budgetField;
-    @FXML private TextField             deadlineField;
-    @FXML private TextArea              descriptionArea;
-    @FXML private Label                 errorLabel;
+    @FXML
+    private TextField nameField;
+    @FXML
+    private ComboBox<ProjectCategory> categoryComboBox;
+    @FXML
+    private ComboBox<User> managerComboBox;
+    @FXML
+    private TextField budgetField;
+    @FXML
+    private TextField deadlineField;
+    @FXML
+    private TextArea descriptionArea;
+    @FXML
+    private Label errorLabel;
 
     private boolean saveClicked = false;
 
@@ -30,8 +40,14 @@ public class CreateProjectModalController {
     public void initialize() {
         // Populate from enum — uses toString() which returns displayName
         categoryComboBox.setItems(
-                FXCollections.observableArrayList(ProjectCategory.values())
-        );
+                FXCollections.observableArrayList(ProjectCategory.values()));
+        managerComboBox.setItems(
+                FXCollections.observableArrayList(AppFactory.userService.getUserByRole(UserRole.MANAGER)));
+
+        User currentUser = SessionManager.getInstance().getCurrentUser();
+        if (currentUser != null && currentUser.getRole() == UserRole.MANAGER) {
+            managerComboBox.getSelectionModel().select(currentUser);
+        }
     }
 
     public boolean isSaveClicked() {
@@ -43,10 +59,10 @@ public class CreateProjectModalController {
         errorLabel.setText("");
 
         // Read inputs
-        String name        = nameField.getText().trim();
+        String name = nameField.getText().trim();
         ProjectCategory cat = categoryComboBox.getValue();
-        String budgetText  = budgetField.getText().trim();
-        String deadline    = deadlineField.getText().trim();
+        String budgetText = budgetField.getText().trim();
+        String deadline = deadlineField.getText().trim();
         String description = descriptionArea.getText().trim();
 
         // Validate
@@ -70,31 +86,28 @@ public class CreateProjectModalController {
         double budget;
         try {
             budget = Double.parseDouble(budgetText);
-            if (budget <= 0) throw new NumberFormatException();
+            if (budget <= 0)
+                throw new NumberFormatException();
         } catch (NumberFormatException e) {
             errorLabel.setText("Budget must be a positive number.");
             return;
         }
 
-        // Get current logged-in manager's ID
-        String managerId = SessionManager.getInstance()
-                .getCurrentUser()
-                .getId();
+        User selectedManager = managerComboBox.getValue();
+        User currentUser = SessionManager.getInstance().getCurrentUser();
+        String managerId = null;
+        if (selectedManager != null) {
+            managerId = selectedManager.getId();
+        } else if (currentUser != null && currentUser.getRole() == UserRole.MANAGER) {
+            managerId = currentUser.getId();
+        }
 
-        // Build Project using Builder pattern (correct way — no raw strings)
-        Project newProject = new Project.Builder()
-                .id("prj-" + UUID.randomUUID().toString().substring(0, 8))
-                .name(name)
-                .description(description)
-                .managerId(managerId)
-                .category(cat)                   // ProjectCategory enum
-                .status(ProjectStatus.PLANNING)  // ProjectStatus enum — always starts as PLANNING
-                .budget(budget)
-                .deadline(deadline)
-                .build();
+        if (managerId == null || managerId.isBlank()) {
+            errorLabel.setText("Please assign a project manager.");
+            return;
+        }
 
-        // Persist to SQLite
-        AppFactory.projectRepository.save(newProject);
+        AppFactory.projectService.createProject(name, description, managerId, cat, budget, deadline);
 
         saveClicked = true;
         closeStage();
