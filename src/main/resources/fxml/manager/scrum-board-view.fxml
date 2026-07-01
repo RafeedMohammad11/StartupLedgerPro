@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.startupledgerpro.controller.ScrumBoardController"
+            stylesheets="@../../css/styles.css"
+            style="-fx-background-color: #F1F5F9;">
+
+    <!-- ═══════════════════════════════════════
+         TOP BAR
+    ═══════════════════════════════════════ -->
+    <top>
+        <VBox style="-fx-background-color: #FFFFFF;
+                     -fx-border-color: transparent transparent #E5E9EB transparent;
+                     -fx-border-width: 1;">
+
+            <!-- Main header row -->
+            <HBox alignment="CENTER_LEFT" spacing="16"
+                  style="-fx-padding: 20 28 14 28;">
+
+                <!-- Back button + Title -->
+                <Button text="←"
+                        onAction="#handleCloseBoardView"
+                        style="-fx-background-color: #F1F5F9;
+                               -fx-border-color: #E5E9EB;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;
+                               -fx-text-fill: #475569;
+                               -fx-font-size: 16px;
+                               -fx-pref-width: 36; -fx-pref-height: 36;
+                               -fx-cursor: hand;"/>
+
+                <VBox spacing="2">
+                    <Label text="Scrum Board"
+                           style="-fx-text-fill: #0F172A;
+                                  -fx-font-size: 20px;
+                                  -fx-font-weight: bold;"/>
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Label fx:id="scrumProjectLabel"
+                               text="All Projects"
+                               style="-fx-text-fill: #64748B;
+                                      -fx-font-size: 12px;"/>
+                        <Label text="•"
+                               style="-fx-text-fill: #CBD5E1;
+                                      -fx-font-size: 12px;"/>
+                        <Label fx:id="scrumStatusLabel"
+                               text="Loading tasks..."
+                               style="-fx-text-fill: #64748B;
+                                      -fx-font-size: 12px;"/>
+                    </HBox>
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Summary chips -->
+                <HBox spacing="10" alignment="CENTER">
+
+                    <HBox spacing="6" alignment="CENTER"
+                          style="-fx-background-color: #F8FAFC;
+                                 -fx-border-color: #E2E8F0;
+                                 -fx-border-radius: 20;
+                                 -fx-background-radius: 20;
+                                 -fx-padding: 6 14;">
+                        <Label text="📋"
+                               style="-fx-font-size: 12px;"/>
+                        <Label fx:id="totalTasksChip"
+                               text="0 Total"
+                               style="-fx-text-fill: #475569;
+                                      -fx-font-size: 12px;
+                                      -fx-font-weight: bold;"/>
+                    </HBox>
+
+                    <HBox spacing="6" alignment="CENTER"
+                          style="-fx-background-color: #EFF6FF;
+                                 -fx-border-color: #BFDBFE;
+                                 -fx-border-radius: 20;
+                                 -fx-background-radius: 20;
+                                 -fx-padding: 6 14;">
+                        <Label text="⚡"
+                               style="-fx-font-size: 12px;"/>
+                        <Label fx:id="inProgressChip"
+                               text="0 Active"
+                               style="-fx-text-fill: #1D4ED8;
+                                      -fx-font-size: 12px;
+                                      -fx-font-weight: bold;"/>
+                    </HBox>
+
+                    <HBox spacing="6" alignment="CENTER"
+                          style="-fx-background-color: #F0FDF4;
+                                 -fx-border-color: #BBF7D0;
+                                 -fx-border-radius: 20;
+                                 -fx-background-radius: 20;
+                                 -fx-padding: 6 14;">
+                        <Label text="✅"
+                               style="-fx-font-size: 12px;"/>
+                        <Label fx:id="doneChip"
+                               text="0 Done"
+                               style="-fx-text-fill: #047857;
+                                      -fx-font-size: 12px;
+                                      -fx-font-weight: bold;"/>
+                    </HBox>
+
+                </HBox>
+
+                <!-- Action buttons -->
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button text="⟳  Refresh"
+                            onAction="#handleRefreshScrumBoard"
+                            style="-fx-background-color: transparent;
+                                   -fx-border-color: #E2E8F0;
+                                   -fx-border-radius: 8;
+                                   -fx-background-radius: 8;
+                                   -fx-text-fill: #475569;
+                                   -fx-font-size: 13px;
+                                   -fx-padding: 8 16;
+                                   -fx-cursor: hand;"/>
+                    <Button text="➕  Add Task"
+                            onAction="#handleAddTask"
+                            style="-fx-background-color: #00B37E;
+                                   -fx-text-fill: white;
+                                   -fx-font-weight: bold;
+                                   -fx-font-size: 13px;
+                                   -fx-background-radius: 8;
+                                   -fx-padding: 8 18;
+                                   -fx-cursor: hand;"/>
+                    <Button text="🚪 Log Out"
+                            onAction="#handleLogout"
+                            styleClass="button-danger"
+                            style="-fx-font-size: 13px;"/>
+                </HBox>
+
+            </HBox>
+
+            <!-- Filter row -->
+            <HBox alignment="CENTER_LEFT" spacing="12"
+                  style="-fx-padding: 0 28 16 28;">
+                <Label text="Filter by:"
+                       style="-fx-text-fill: #94A3B8;
+                              -fx-font-size: 12px;"/>
+                <ComboBox fx:id="projectFilterCombo"
+                          promptText="All Projects"
+                          style="-fx-font-size: 12px;
+                                 -fx-background-color: #F8FAFC;
+                                 -fx-border-color: #E2E8F0;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;
+                                 -fx-pref-width: 180;"/>
+                <ComboBox fx:id="assigneeFilterCombo"
+                          promptText="All Assignees"
+                          style="-fx-font-size: 12px;
+                                 -fx-background-color: #F8FAFC;
+                                 -fx-border-color: #E2E8F0;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;
+                                 -fx-pref-width: 180;"/>
+            </HBox>
+
+        </VBox>
+    </top>
+
+    <!-- ═══════════════════════════════════════
+         KANBAN COLUMNS
+    ═══════════════════════════════════════ -->
+    <center>
+        <HBox spacing="20"
+              style="-fx-padding: 24 28 28 28;
+                     -fx-alignment: TOP_LEFT;">
+
+              <!-- ── TO DO COLUMN ── -->
+              <VBox fx:id="outerTodoCol" HBox.hgrow="ALWAYS" spacing="0"
+                     style="-fx-background-color: #F8FAFC;
+                             -fx-background-radius: 14;
+                             -fx-border-color: #E2E8F0;
+                             -fx-border-radius: 14;
+                             -fx-border-width: 1;">
+
+                <!-- Column header -->
+                <HBox alignment="CENTER_LEFT" spacing="10"
+                      style="-fx-padding: 16 16 12 16;
+                             -fx-border-color: transparent transparent #E2E8F0 transparent;
+                             -fx-border-width: 1;">
+                    <StackPane style="-fx-background-color: #E2E8F0;
+                                      -fx-background-radius: 6;
+                                      -fx-pref-width: 10;
+                                      -fx-pref-height: 10;"/>
+                    <Label text="TO DO"
+                           style="-fx-text-fill: #334155;
+                                  -fx-font-size: 12px;
+                                  -fx-font-weight: bold;
+                                  -fx-letter-spacing: 0.5;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="todoCountLabel"
+                           text="0"
+                           style="-fx-background-color: #E2E8F0;
+                                  -fx-text-fill: #475569;
+                                  -fx-background-radius: 20;
+                                  -fx-padding: 2 8;
+                                  -fx-font-size: 11px;
+                                  -fx-font-weight: bold;"/>
+                </HBox>
+
+                <!-- Drop zone -->
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background: transparent;
+                                   -fx-background-color: transparent;
+                                   -fx-border-color: transparent;"
+                            VBox.vgrow="ALWAYS">
+                    <VBox fx:id="todoColumn" spacing="10"
+                          style="-fx-padding: 12;">
+                        <!-- Task cards injected here by controller -->
+                    </VBox>
+                </ScrollPane>
+
+                <!-- Add task hint -->
+                <HBox alignment="CENTER"
+                      style="-fx-padding: 12;
+                             -fx-border-color: #E2E8F0 transparent transparent transparent;
+                             -fx-border-width: 1;
+                             -fx-cursor: hand;"
+                      onMouseClicked="#handleAddTask">
+                    <Label text="＋  Add a task"
+                           style="-fx-text-fill: #94A3B8;
+                                  -fx-font-size: 12px;"/>
+                </HBox>
+            </VBox>
+
+              <!-- ── IN PROGRESS COLUMN ── -->
+              <VBox fx:id="outerInProgressCol" HBox.hgrow="ALWAYS" spacing="0"
+                     style="-fx-background-color: #F8FAFC;
+                             -fx-background-radius: 14;
+                             -fx-border-color: #BFDBFE;
+                             -fx-border-radius: 14;
+                             -fx-border-width: 1;">
+
+                <HBox alignment="CENTER_LEFT" spacing="10"
+                      style="-fx-padding: 16 16 12 16;
+                             -fx-border-color: transparent transparent #BFDBFE transparent;
+                             -fx-border-width: 1;
+                             -fx-background-color: #EFF6FF;
+                             -fx-background-radius: 14 14 0 0;">
+                    <StackPane style="-fx-background-color: #3B82F6;
+                                      -fx-background-radius: 6;
+                                      -fx-pref-width: 10;
+                                      -fx-pref-height: 10;"/>
+                    <Label text="IN PROGRESS"
+                           style="-fx-text-fill: #1D4ED8;
+                                  -fx-font-size: 12px;
+                                  -fx-font-weight: bold;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="inProgressCountLabel"
+                           text="0"
+                           style="-fx-background-color: #BFDBFE;
+                                  -fx-text-fill: #1D4ED8;
+                                  -fx-background-radius: 20;
+                                  -fx-padding: 2 8;
+                                  -fx-font-size: 11px;
+                                  -fx-font-weight: bold;"/>
+                </HBox>
+
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background: transparent;
+                                   -fx-background-color: transparent;
+                                   -fx-border-color: transparent;"
+                            VBox.vgrow="ALWAYS">
+                    <VBox fx:id="inProgressColumn" spacing="10"
+                          style="-fx-padding: 12;">
+                    </VBox>
+                </ScrollPane>
+
+                <HBox alignment="CENTER"
+                      style="-fx-padding: 12;
+                             -fx-border-color: #BFDBFE transparent transparent transparent;
+                             -fx-border-width: 1;
+                             -fx-cursor: hand;"
+                      onMouseClicked="#handleAddTask">
+                    <Label text="＋  Add a task"
+                           style="-fx-text-fill: #93C5FD;
+                                  -fx-font-size: 12px;"/>
+                </HBox>
+            </VBox>
+
+              <!-- ── DONE COLUMN ── -->
+              <VBox fx:id="outerDoneCol" HBox.hgrow="ALWAYS" spacing="0"
+                     style="-fx-background-color: #F8FAFC;
+                             -fx-background-radius: 14;
+                             -fx-border-color: #BBF7D0;
+                             -fx-border-radius: 14;
+                             -fx-border-width: 1;">
+
+                <HBox alignment="CENTER_LEFT" spacing="10"
+                      style="-fx-padding: 16 16 12 16;
+                             -fx-border-color: transparent transparent #BBF7D0 transparent;
+                             -fx-border-width: 1;
+                             -fx-background-color: #F0FDF4;
+                             -fx-background-radius: 14 14 0 0;">
+                    <StackPane style="-fx-background-color: #22C55E;
+                                      -fx-background-radius: 6;
+                                      -fx-pref-width: 10;
+                                      -fx-pref-height: 10;"/>
+                    <Label text="DONE"
+                           style="-fx-text-fill: #047857;
+                                  -fx-font-size: 12px;
+                                  -fx-font-weight: bold;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="doneCountLabel"
+                           text="0"
+                           style="-fx-background-color: #BBF7D0;
+                                  -fx-text-fill: #047857;
+                                  -fx-background-radius: 20;
+                                  -fx-padding: 2 8;
+                                  -fx-font-size: 11px;
+                                  -fx-font-weight: bold;"/>
+                </HBox>
+
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background: transparent;
+                                   -fx-background-color: transparent;
+                                   -fx-border-color: transparent;"
+                            VBox.vgrow="ALWAYS">
+                    <VBox fx:id="doneColumn" spacing="10"
+                          style="-fx-padding: 12;">
+                    </VBox>
+                </ScrollPane>
+
+                <HBox alignment="CENTER"
+                      style="-fx-padding: 12;
+                             -fx-border-color: #BBF7D0 transparent transparent transparent;
+                             -fx-border-width: 1;
+                             -fx-cursor: hand;"
+                      onMouseClicked="#handleAddTask">
+                    <Label text="＋  Add a task"
+                           style="-fx-text-fill: #86EFAC;
+                                  -fx-font-size: 12px;"/>
+                </HBox>
+            </VBox>
+
+        </HBox>
+    </center>
+
+</BorderPane>
