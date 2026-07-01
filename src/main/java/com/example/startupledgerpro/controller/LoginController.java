@@ -10,21 +10,35 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 public class LoginController {
 
-    @FXML private TextField emailField;
-    @FXML private PasswordField passwordField;
-    @FXML private Label errorLabel;
+    @FXML
+    private TextField emailField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private HBox errorBox;
+    @FXML
+    private Label errorLabel;
+
+    @FXML
+    private void initialize() {
+        clearError();
+
+        emailField.textProperty().addListener((obs, oldVal, newVal) -> clearError());
+        passwordField.textProperty().addListener((obs, oldVal, newVal) -> clearError());
+    }
 
     @FXML
     private void handleLogin() {
-        String email    = emailField.getText().trim();
+        String email = emailField.getText().trim();
         String password = passwordField.getText();
 
         if (email.isEmpty() || password.isEmpty()) {
-            errorLabel.setText("Email and password are required.");
+            showError("Email and password are required.");
             return;
         }
 
@@ -32,8 +46,8 @@ public class LoginController {
         var result = AppFactory.authService.login(email, password);
 
         if (!result.isSuccess()) {
-            errorLabel.setText(result.getMessage());
             passwordField.clear();
+            showError(result.getMessage());
             return;
         }
 
@@ -42,7 +56,7 @@ public class LoginController {
         if (user != null) {
             navigateToDashboard(user);
         } else {
-            errorLabel.setText("Session error: User data not populated.");
+            showError("Session error: User data not populated.");
         }
     }
 
@@ -61,8 +75,29 @@ public class LoginController {
             stage.setResizable(true);
             stage.show();
         } catch (Exception e) {
-            errorLabel.setText("UI load error: " + e.getMessage());
+            showError("Unable to open the dashboard. Please try again.");
             e.printStackTrace();
+        }
+    }
+
+    private void showError(String message) {
+        if (errorBox != null) {
+            errorBox.setVisible(true);
+            errorBox.setManaged(true);
+        }
+        if (errorLabel != null) {
+            errorLabel.setText(message);
+        }
+    }
+
+    @FXML
+    private void clearError() {
+        if (errorBox != null) {
+            errorBox.setVisible(false);
+            errorBox.setManaged(false);
+        }
+        if (errorLabel != null) {
+            errorLabel.setText("");
         }
     }
 }
