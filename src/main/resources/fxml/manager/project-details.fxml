@@ -29,6 +29,7 @@
                     </children>
                 </VBox>
                 <Button styleClass="button-primary" text="➕ Assign New Task" onAction="#handleAddTask"/>
+                <Button styleClass="button-secondary" text="📄 Generate Quotation" onAction="#handleGenerateQuotation"/>
                 <Button styleClass="button-danger" text="🚪 Log Out" onAction="#handleLogout"/>
             </children>
         </HBox>

@@ -2,7 +2,9 @@ package com.example.startupledgerpro.controller;
 
 import com.example.startupledgerpro.factory.AppFactory;
 import com.example.startupledgerpro.model.Project;
+import com.example.startupledgerpro.model.Quotation;
 import com.example.startupledgerpro.model.Task;
+import com.example.startupledgerpro.service.QuotationService;
 import com.example.startupledgerpro.service.TaskService;
 import com.example.startupledgerpro.session.SessionManager;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,8 +16,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import java.io.File;
+import java.util.List;
 
 import java.util.List;
 
@@ -45,6 +50,7 @@ public class ProjectDetailsController {
 
     private Project currentProject;
     private static final TaskService taskService = AppFactory.taskService;
+    private static final QuotationService quotationService = AppFactory.quotationService;
 
     @FXML
     public void initialize() {
@@ -171,6 +177,34 @@ public class ProjectDetailsController {
 
         } catch (Exception e) {
             System.err.println("Failed to open the Assign Task modal window.");
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleGenerateQuotation() {
+        if (this.currentProject == null) {
+            System.err.println("Cannot generate quotation: project context is null.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/manager/quotation-generator.fxml"));
+            Parent root = loader.load();
+
+            QuotationGeneratorController controller = loader.getController();
+            controller.setProjectContext(currentProject);
+
+            Stage modalStage = new Stage();
+            modalStage.setTitle("Generate Quotation");
+            modalStage.initModality(Modality.WINDOW_MODAL);
+            modalStage.initOwner(projectNameLabel.getScene().getWindow());
+            modalStage.setScene(new Scene(root));
+            modalStage.setResizable(false);
+            modalStage.showAndWait();
+        } catch (Exception e) {
+            System.err.println("Failed to open quotation generator.");
             e.printStackTrace();
         }
     }
