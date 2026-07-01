@@ -39,10 +39,10 @@
 
             <VBox spacing="8.0" VBox.vgrow="ALWAYS">
                 <children>
-                    <Button maxWidth="Infinity" alignment="BASELINE_LEFT" styleClass="button-sidebar-active" text="📊 Dashboard" />
-                    <Button maxWidth="Infinity" alignment="BASELINE_LEFT" styleClass="button-sidebar" text="👷 Engineer Directory" />
-                    <Button maxWidth="Infinity" alignment="BASELINE_LEFT" styleClass="button-sidebar" text="📂 All Projects" />
-                    <Button maxWidth="Infinity" alignment="BASELINE_LEFT" styleClass="button-sidebar" text="📈 Analytics" />
+                    <Button maxWidth="Infinity" alignment="BASELINE_LEFT" styleClass="button-sidebar-active" text="📊 Dashboard" onAction="#handleShowDashboardOverview" />
+                    <Button maxWidth="Infinity" alignment="BASELINE_LEFT" styleClass="button-sidebar" text="👷 Engineer Directory" onAction="#handleShowEngineerDirectory" />
+                    <Button maxWidth="Infinity" alignment="BASELINE_LEFT" styleClass="button-sidebar" text="📂 All Projects" onAction="#handleShowProjectsOverview" />
+                    <Button maxWidth="Infinity" alignment="BASELINE_LEFT" styleClass="button-sidebar" text="📈 Analytics" onAction="#handleShowAnalytics" />
                 </children>
             </VBox>
 
@@ -74,7 +74,7 @@
                         <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
                         <children>
                             <HBox alignment="TOP_RIGHT"><Label style="-fx-text-fill: #00B37E; -fx-font-size: 11px; -fx-background-color: #E6F7F2; -fx-background-radius: 4px; -fx-padding: 2 6 2 6;" text="↑ Active Now" /></HBox>
-                            <Label style="-fx-text-fill: #1C1F21; -fx-font-size: 28px; -fx-font-weight: bold;" text="8" />
+                            <Label fx:id="engineerCountLabel" style="-fx-text-fill: #1C1F21; -fx-font-size: 28px; -fx-font-weight: bold;" text="8" />
                             <Label style="-fx-text-fill: #848D95; -fx-font-size: 13px;" text="Assigned Engineers" />
                         </children>
                     </VBox>
@@ -83,7 +83,7 @@
                         <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
                         <children>
                             <HBox alignment="TOP_RIGHT"><Label style="-fx-text-fill: #00B37E; -fx-font-size: 11px; -fx-background-color: #E6F7F2; -fx-background-radius: 4px; -fx-padding: 2 6 2 6;" text="↑ 3 this month" /></HBox>
-                            <Label style="-fx-text-fill: #1C1F21; -fx-font-size: 28px; -fx-font-weight: bold;" text="5" />
+                            <Label fx:id="activeProjectCountLabel" style="-fx-text-fill: #1C1F21; -fx-font-size: 28px; -fx-font-weight: bold;" text="5" />
                             <Label style="-fx-text-fill: #848D95; -fx-font-size: 13px;" text="Active Tracked Projects" />
                         </children>
                     </VBox>
@@ -92,7 +92,7 @@
                         <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
                         <children>
                             <HBox alignment="TOP_RIGHT"><Label style="-fx-text-fill: #00B37E; -fx-font-size: 11px; -fx-background-color: #E6F7F2; -fx-background-radius: 4px; -fx-padding: 2 6 2 6;" text="18% vs last month" /></HBox>
-                            <Label style="-fx-text-fill: #1C1F21; -fx-font-size: 28px; -fx-font-weight: bold;" text="Tk 2,80,000" />
+                            <Label fx:id="budgetTotalLabel" style="-fx-text-fill: #1C1F21; -fx-font-size: 28px; -fx-font-weight: bold;" text="Tk 2,80,000" />
                             <Label style="-fx-text-fill: #848D95; -fx-font-size: 13px;" text="Total Project Budget" />
                         </children>
                     </VBox>
@@ -101,7 +101,7 @@
                         <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
                         <children>
                             <HBox alignment="TOP_RIGHT"><Label style="-fx-text-fill: #F75A68; -fx-font-size: 11px; -fx-background-color: #FEECEF; -fx-background-radius: 4px; -fx-padding: 2 6 2 6;" text="↓ 5 unresolved" /></HBox>
-                            <Label style="-fx-text-fill: #1C1F21; -fx-font-size: 28px; -fx-font-weight: bold;" text="14" />
+                            <Label fx:id="pendingTasksCountLabel" style="-fx-text-fill: #1C1F21; -fx-font-size: 28px; -fx-font-weight: bold;" text="14" />
                             <Label style="-fx-text-fill: #848D95; -fx-font-size: 13px;" text="Pending Tasks" />
                         </children>
                     </VBox>
@@ -127,21 +127,46 @@
                         </children>
                     </VBox>
 
-                    <VBox prefWidth="380.0" spacing="15.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 12px; -fx-border-color: #E5E9EB; -fx-padding: 20px;">
+                    <VBox prefWidth="520.0" spacing="15.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 12px; -fx-border-color: #E5E9EB; -fx-padding: 20px;">
                         <children>
-                            <Label style="-fx-text-fill: #1C1F21; -fx-font-size: 16px; -fx-font-weight: bold;" text="Engineering Health Log" />
-                            <VBox spacing="12.0" style="-fx-background-color: #F8F9FA; -fx-background-radius: 8px; -fx-padding: 15px;">
+                            <HBox alignment="CENTER_LEFT">
                                 <children>
-                                    <Label style="-fx-text-fill: #1C1F21; -fx-font-weight: bold; -fx-font-size: 13px;" text="System Core Migration" />
-                                    <Label style="-fx-text-fill: #848D95; -fx-font-size: 12px;" text="Assigned to Rafeed Islam • 65% Complete" />
+                                    <VBox HBox.hgrow="ALWAYS">
+                                        <children>
+                                            <Label style="-fx-text-fill: #1C1F21; -fx-font-size: 16px; -fx-font-weight: bold;" text="Scrum Board" />
+                                            <Label fx:id="scrumStatusLabel" style="-fx-text-fill: #475569; -fx-font-size: 12px;" text="Tasks grouped by workflow state" />
+                                            <Label fx:id="scrumProjectLabel" style="-fx-text-fill: #64748B; -fx-font-size: 11px;" text="Filter: All projects" />
+                                        </children>
+                                    </VBox>
+                                    <Button styleClass="btn-outline" text="Refresh" onAction="#handleRefreshScrumBoard" />
+                                    <Button styleClass="button-primary" text="See Board" onAction="#handleOpenBoardView" />
                                 </children>
-                            </VBox>
-                            <VBox spacing="12.0" style="-fx-background-color: #F8F9FA; -fx-background-radius: 8px; -fx-padding: 15px;">
+                            </HBox>
+                            <HBox spacing="16.0" VBox.vgrow="ALWAYS">
                                 <children>
-                                    <Label style="-fx-text-fill: #1C1F21; -fx-font-weight: bold; -fx-font-size: 13px;" text="Database Optimization" />
-                                    <Label style="-fx-text-fill: #848D95; -fx-font-size: 12px;" text="Assigned to Nusrat Akter • 20% Complete" />
+                                    <VBox spacing="10.0" HBox.hgrow="ALWAYS" style="-fx-background-color: #F8FAFC; -fx-background-radius: 10px; -fx-border-color: #E5E9EB; -fx-border-radius: 10px; -fx-padding: 18px;">
+                                        <children>
+                                            <Label style="-fx-text-fill: #64748B; -fx-font-size: 11px; -fx-font-weight: bold;" text="TO DO" />
+                                            <Label fx:id="todoCountLabel" style="-fx-text-fill: #475569; -fx-font-size: 11px;" text="0 tasks" />
+                                            <VBox fx:id="todoColumn" spacing="14.0" VBox.vgrow="ALWAYS" style="-fx-padding: 6 0 0 0;" HBox.hgrow="ALWAYS" />
+                                        </children>
+                                    </VBox>
+                                    <VBox spacing="10.0" HBox.hgrow="ALWAYS" style="-fx-background-color: #F8FAFC; -fx-background-radius: 10px; -fx-border-color: #E5E9EB; -fx-border-radius: 10px; -fx-padding: 18px;">
+                                        <children>
+                                            <Label style="-fx-text-fill: #2563EB; -fx-font-size: 11px; -fx-font-weight: bold;" text="IN PROGRESS" />
+                                            <Label fx:id="inProgressCountLabel" style="-fx-text-fill: #475569; -fx-font-size: 11px;" text="0 tasks" />
+                                            <VBox fx:id="inProgressColumn" spacing="14.0" VBox.vgrow="ALWAYS" style="-fx-padding: 6 0 0 0;" HBox.hgrow="ALWAYS" />
+                                        </children>
+                                    </VBox>
+                                    <VBox spacing="10.0" HBox.hgrow="ALWAYS" style="-fx-background-color: #F8FAFC; -fx-background-radius: 10px; -fx-border-color: #E5E9EB; -fx-border-radius: 10px; -fx-padding: 18px;">
+                                        <children>
+                                            <Label style="-fx-text-fill: #15803D; -fx-font-size: 11px; -fx-font-weight: bold;" text="DONE" />
+                                            <Label fx:id="doneCountLabel" style="-fx-text-fill: #475569; -fx-font-size: 11px;" text="0 tasks" />
+                                            <VBox fx:id="doneColumn" spacing="14.0" VBox.vgrow="ALWAYS" style="-fx-padding: 6 0 0 0;" HBox.hgrow="ALWAYS" />
+                                        </children>
+                                    </VBox>
                                 </children>
-                            </VBox>
+                            </HBox>
                         </children>
                     </VBox>
 
