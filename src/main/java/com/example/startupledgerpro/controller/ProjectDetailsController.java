@@ -3,6 +3,7 @@ package com.example.startupledgerpro.controller;
 import com.example.startupledgerpro.factory.AppFactory;
 import com.example.startupledgerpro.model.Project;
 import com.example.startupledgerpro.model.Task;
+import com.example.startupledgerpro.service.TaskService;
 import com.example.startupledgerpro.session.SessionManager;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -43,6 +44,7 @@ public class ProjectDetailsController {
     private TableColumn<Task, String> colDueDate;
 
     private Project currentProject;
+    private static final TaskService taskService = AppFactory.taskService;
 
     @FXML
     public void initialize() {
@@ -93,7 +95,7 @@ public class ProjectDetailsController {
         tasksTableView.getItems().clear();
 
         // 🔥 FIX: Live data pipeline now active and uncommented!
-        List<Task> tasks = AppFactory.taskService.getTasksByProject(currentProject.getId());
+        List<Task> tasks = taskService.getTasksByProject(currentProject.getId());
         tasksTableView.setItems(FXCollections.observableArrayList(tasks));
 
         System.out.println("Successfully pulled and rendered tasks for project ID: " + currentProject.getId());
