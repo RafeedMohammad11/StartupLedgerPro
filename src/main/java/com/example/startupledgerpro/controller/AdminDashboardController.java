@@ -13,6 +13,8 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TableRow;
 import com.example.startupledgerpro.util.ValidationResult;
 import com.example.startupledgerpro.util.Validator;
+import com.example.startupledgerpro.util.CurrencyUtil;
+import com.example.startupledgerpro.util.ExceptionHandler;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -23,13 +25,14 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.text.NumberFormat;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -43,11 +46,17 @@ public class AdminDashboardController {
     @FXML
     private Label sidebarEmailLabel;
     @FXML
+    private Label sidebarAvatarLabel;
+    @FXML
     private Label totalUsersLabel;
     @FXML
     private Label activeProjectsLabel;
     @FXML
     private Label totalBudgetLabel;
+    @FXML
+    private Label remainingBalanceLabel;
+    @FXML
+    private Label financialHealthLabel;
     @FXML
     private Label pendingTasksLabel;
     @FXML
@@ -76,6 +85,8 @@ public class AdminDashboardController {
     private TableColumn<Project, String> colProjectStatus;
     @FXML
     private TableColumn<Project, String> colProjectBudget;
+    @FXML
+    private TableColumn<Project, String> colProjectRemainingBalance;
     @FXML
     private TableColumn<Project, String> colProjectDeadline;
 
@@ -145,6 +156,18 @@ public class AdminDashboardController {
         topWelcomeLabel.setText("Welcome back, " + currentUser.getName());
         sidebarNameLabel.setText(currentUser.getName());
         sidebarEmailLabel.setText(currentUser.getEmail());
+        sidebarAvatarLabel.setText(getInitials(currentUser.getName()));
+    }
+
+    private String getInitials(String name) {
+        if (isBlank(name)) {
+            return "?";
+        }
+        String[] parts = name.trim().split("\\s+");
+        if (parts.length >= 2) {
+            return ("" + parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase(Locale.ROOT);
+        }
+        return name.substring(0, Math.min(2, name.length())).toUpperCase(Locale.ROOT);
     }
 
     private void configureUserTable() {
@@ -154,6 +177,44 @@ public class AdminDashboardController {
         colUserStatus.setCellValueFactory(
                 data -> new SimpleStringProperty(data.getValue().isActive() ? "ACTIVE" : "INACTIVE"));
         colUserJoinDate.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getJoinDate()));
+
+        colUserRole.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String role, boolean empty) {
+                super.updateItem(role, empty);
+                if (empty || role == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+                Label badge = new Label(role);
+                badge.getStyleClass().add(switch (role) {
+                    case "ADMIN" -> "badge-admin";
+                    case "MANAGER" -> "badge-manager";
+                    default -> "badge-employee";
+                });
+                setGraphic(badge);
+                setText(null);
+            }
+        });
+
+        colUserStatus.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+                if (empty || status == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+                Label badge = new Label(status);
+                badge.getStyleClass().add("ACTIVE".equals(status) ? "badge-active" : "badge-inactive");
+                setGraphic(badge);
+                setText(null);
+            }
+        });
+
+        usersTableView.setPlaceholder(new Label("No users found. Create one using the form on the right."));
 
         usersTableView.setRowFactory(tv -> {
             TableRow<User> row = new TableRow<>();
@@ -172,8 +233,28 @@ public class AdminDashboardController {
                 .setCellValueFactory(data -> new SimpleStringProperty(resolveUserName(data.getValue().getManagerId())));
         colProjectStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().name()));
         colProjectBudget
-                .setCellValueFactory(data -> new SimpleStringProperty(formatMoney(data.getValue().getBudget())));
+                .setCellValueFactory(data -> new SimpleStringProperty(CurrencyUtil.formatBdt(data.getValue().getBudget())));
+        colProjectRemainingBalance.setCellValueFactory(data -> {
+            double remaining = AppFactory.financialService.getRemainingBalance(data.getValue().getId());
+            return new SimpleStringProperty(CurrencyUtil.formatBdt(remaining));
+        });
         colProjectDeadline.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDeadline()));
+
+        colProjectStatus.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+                if (empty || status == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+                Label badge = new Label(status.replace('_', ' '));
+                badge.getStyleClass().add("badge-status");
+                setGraphic(badge);
+                setText(null);
+            }
+        });
 
         projectsTableView.setRowFactory(tv -> {
             TableRow<Project> row = new TableRow<>();
@@ -184,6 +265,7 @@ public class AdminDashboardController {
             });
             return row;
         });
+        projectsTableView.setPlaceholder(new Label("No projects in the system yet."));
     }
 
     private void configureTaskTable() {
@@ -195,6 +277,26 @@ public class AdminDashboardController {
         colTaskStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().name()));
         colTaskDueDate.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDueDate()));
 
+        colTaskStatus.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+                if (empty || status == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+                Label badge = new Label(status.replace('_', ' '));
+                badge.getStyleClass().add(switch (status) {
+                    case "DONE" -> "badge-active";
+                    case "IN_PROGRESS" -> "badge-manager";
+                    default -> "badge-status";
+                });
+                setGraphic(badge);
+                setText(null);
+            }
+        });
+
         tasksTableView.setRowFactory(tv -> {
             TableRow<Task> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
@@ -204,31 +306,40 @@ public class AdminDashboardController {
             });
             return row;
         });
+        tasksTableView.setPlaceholder(new Label("No tasks assigned across projects."));
     }
 
     @FXML
     private void refreshDashboard() {
-        List<User> users = AppFactory.userService.getAllUsers();
-        List<Project> projects = AppFactory.projectService.getAllProjects();
-        List<Task> tasks = AppFactory.taskService.getAllTasks();
+        try {
+            List<User> users = AppFactory.userService.getAllUsers();
+            List<Project> projects = AppFactory.projectService.getAllProjects();
+            List<Task> tasks = AppFactory.taskService.getAllTasks();
 
-        users.sort(Comparator.comparing(User::getRole).thenComparing(User::getName, String.CASE_INSENSITIVE_ORDER));
-        projects.sort(Comparator.comparing(Project::getDeadline, Comparator.nullsLast(String::compareTo)));
-        tasks.sort(Comparator.comparing(Task::getDueDate, Comparator.nullsLast(String::compareTo)));
+            users.sort(Comparator.comparing(User::getRole).thenComparing(User::getName, String.CASE_INSENSITIVE_ORDER));
+            projects.sort(Comparator.comparing(Project::getDeadline, Comparator.nullsLast(String::compareTo)));
+            tasks.sort(Comparator.comparing(Task::getDueDate, Comparator.nullsLast(String::compareTo)));
 
-        usersTableView.setItems(FXCollections.observableArrayList(users));
-        projectsTableView.setItems(FXCollections.observableArrayList(projects));
-        tasksTableView.setItems(FXCollections.observableArrayList(tasks));
+            usersTableView.setItems(FXCollections.observableArrayList(users));
+            projectsTableView.setItems(FXCollections.observableArrayList(projects));
+            tasksTableView.setItems(FXCollections.observableArrayList(tasks));
 
-        totalUsersLabel.setText(String.valueOf(users.size()));
-        activeProjectsLabel.setText(String.valueOf(projects.stream()
-                .filter(project -> project.getStatus() == ProjectStatus.IN_PROGRESS)
-                .count()));
-        totalBudgetLabel.setText(formatMoney(projects.stream().mapToDouble(Project::getBudget).sum()));
-        pendingTasksLabel.setText(String.valueOf(tasks.stream()
-                .filter(task -> task.getStatus() != TaskStatus.DONE)
-                .count()));
-        statusLabel.setText("Dashboard synced with current database records.");
+            totalUsersLabel.setText(String.valueOf(users.size()));
+            activeProjectsLabel.setText(String.valueOf(projects.stream()
+                    .filter(project -> project.getStatus() == ProjectStatus.IN_PROGRESS)
+                    .count()));
+            totalBudgetLabel.setText(CurrencyUtil.formatBdt(projects.stream().mapToDouble(Project::getBudget).sum()));
+            double remainingBalance = AppFactory.financialService.getRemainingBalanceForProjects(projects);
+            remainingBalanceLabel.setText(CurrencyUtil.formatBdt(remainingBalance));
+            financialHealthLabel.setText(remainingBalance >= 0 ? "Healthy balance" : "Over budget");
+            pendingTasksLabel.setText(String.valueOf(tasks.stream()
+                    .filter(task -> task.getStatus() != TaskStatus.DONE)
+                    .count()));
+            statusLabel.setText("Dashboard synced with current database records.");
+        } catch (RuntimeException ex) {
+            statusLabel.setText("Could not refresh dashboard.");
+            showWarning(ExceptionHandler.resolveMessage(ex));
+        }
     }
 
     @FXML
@@ -259,8 +370,8 @@ public class AdminDashboardController {
             createUserValidationLabel.setText("");
             refreshDashboard();
             statusLabel.setText("Created user account for " + normalizedName + ".");
-        } catch (IllegalArgumentException ex) {
-            showWarning(ex.getMessage());
+        } catch (RuntimeException ex) {
+            showWarning(ExceptionHandler.resolveMessage(ex));
         }
     }
 
@@ -278,9 +389,13 @@ public class AdminDashboardController {
             return;
         }
 
-        AppFactory.userService.deactivateUser(selectedUser.getId());
-        refreshDashboard();
-        statusLabel.setText("Deactivated " + selectedUser.getName() + ".");
+        try {
+            AppFactory.userService.deactivateUser(selectedUser.getId());
+            refreshDashboard();
+            statusLabel.setText("Deactivated " + selectedUser.getName() + ".");
+        } catch (RuntimeException ex) {
+            showWarning(ExceptionHandler.resolveMessage(ex));
+        }
     }
 
     @FXML
@@ -323,8 +438,12 @@ public class AdminDashboardController {
                 return;
             }
 
-            AppFactory.userService.resetPassword(selectedUser.getId(), newPassword);
-            statusLabel.setText("Password reset for " + selectedUser.getName() + ".");
+            try {
+                AppFactory.userService.resetPassword(selectedUser.getId(), newPassword);
+                statusLabel.setText("Password reset for " + selectedUser.getName() + ".");
+            } catch (RuntimeException ex) {
+                showWarning(ExceptionHandler.resolveMessage(ex));
+            }
         });
     }
 
@@ -339,19 +458,29 @@ public class AdminDashboardController {
     }
 
     private void showUserDetails(User user) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("User Details");
-        alert.setHeaderText("Details for " + user.getName());
-        String details = String.join("\n",
-                "Name: " + user.getName(),
-                "Email: " + user.getEmail(),
-                "Role: " + user.getRole().name(),
-                "Status: " + (user.isActive() ? "ACTIVE" : "INACTIVE"),
-                "Phone: " + (user.getPhone() == null || user.getPhone().isBlank() ? "Not provided" : user.getPhone()),
-                "Joining Date: " + (user.getJoinDate() == null ? "Unknown" : user.getJoinDate()));
-        alert.setContentText(details);
-        alert.getDialogPane().setPrefWidth(420);
-        alert.showAndWait();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/user-details-modal.fxml"));
+            Parent root = loader.load();
+            UserDetailsModalController controller = loader.getController();
+            controller.setUser(user);
+
+            Stage modal = new Stage();
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.initOwner(usersTableView.getScene().getWindow());
+            modal.setTitle("User Profile — " + user.getName());
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            modal.setScene(scene);
+            modal.setResizable(false);
+            modal.showAndWait();
+
+            if (controller.wasSaved()) {
+                refreshDashboard();
+                statusLabel.setText("Updated profile for " + user.getName() + ".");
+            }
+        } catch (Exception ex) {
+            ExceptionHandler.handle("User Details", ex);
+        }
     }
 
     @FXML
@@ -367,9 +496,13 @@ public class AdminDashboardController {
             return;
         }
 
-        AppFactory.projectService.updateStatus(selectedProject.getId(), selectedStatus);
-        refreshDashboard();
-        statusLabel.setText("Updated " + selectedProject.getName() + " to " + selectedStatus.name() + ".");
+        try {
+            AppFactory.projectService.updateStatus(selectedProject.getId(), selectedStatus);
+            refreshDashboard();
+            statusLabel.setText("Updated " + selectedProject.getName() + " to " + selectedStatus.name() + ".");
+        } catch (RuntimeException ex) {
+            showWarning(ExceptionHandler.resolveMessage(ex));
+        }
     }
 
     @FXML
@@ -380,9 +513,38 @@ public class AdminDashboardController {
             return;
         }
 
-        AppFactory.projectService.deleteProject(selectedProject.getId());
-        refreshDashboard();
-        statusLabel.setText("Deleted project " + selectedProject.getName() + ".");
+        try {
+            AppFactory.projectService.deleteProject(selectedProject.getId());
+            refreshDashboard();
+            statusLabel.setText("Deleted project " + selectedProject.getName() + ".");
+        } catch (RuntimeException ex) {
+            showWarning(ExceptionHandler.resolveMessage(ex));
+        }
+    }
+
+    @FXML
+    private void handleRecordExpense() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/shared/record-expense-modal.fxml"));
+            Parent root = loader.load();
+            RecordExpenseModalController controller = loader.getController();
+            controller.setProjects(AppFactory.projectService.getAllProjects());
+
+            Stage modal = new Stage();
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.initOwner(projectsTableView.getScene().getWindow());
+            modal.setTitle("Record Expense");
+            modal.setScene(new Scene(root));
+            modal.setResizable(false);
+            modal.showAndWait();
+
+            if (controller.wasSaved()) {
+                refreshDashboard();
+                statusLabel.setText("Expense recorded and financial health updated.");
+            }
+        } catch (Exception ex) {
+            ExceptionHandler.handle("Record Expense", ex);
+        }
     }
 
     @FXML
@@ -422,22 +584,24 @@ public class AdminDashboardController {
     }
 
     private void showProjectDetails(Project project) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Project Details");
-        alert.setHeaderText("Details for " + project.getName());
-        String details = String.join("\n",
-                "Name: " + project.getName(),
-                "Manager: " + resolveUserName(project.getManagerId()),
-                "Category: " + (project.getCategory() == null ? "Unspecified" : project.getCategory().name()),
-                "Status: " + project.getStatus().name(),
-                "Budget: " + formatMoney(project.getBudget()),
-                "Deadline: " + (project.getDeadline() == null ? "Not set" : project.getDeadline()),
-                "Description: "
-                        + (project.getDescription() == null || project.getDescription().isBlank() ? "No description"
-                                : project.getDescription()));
-        alert.setContentText(details);
-        alert.getDialogPane().setPrefWidth(420);
-        alert.showAndWait();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/project-details-modal.fxml"));
+            Parent root = loader.load();
+            ProjectDetailsModalController controller = loader.getController();
+            controller.setProject(project, resolveUserName(project.getManagerId()));
+
+            Stage modal = new Stage();
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.initOwner(projectsTableView.getScene().getWindow());
+            modal.setTitle("Project Details — " + project.getName());
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            modal.setScene(scene);
+            modal.setResizable(false);
+            modal.showAndWait();
+        } catch (Exception ex) {
+            ExceptionHandler.handle("Project Details", ex);
+        }
     }
 
     private void showTaskDetails(Task task) {
@@ -455,11 +619,6 @@ public class AdminDashboardController {
         alert.setContentText(details);
         alert.getDialogPane().setPrefWidth(420);
         alert.showAndWait();
-    }
-
-    private String formatMoney(double amount) {
-        NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.US);
-        return formatter.format(amount);
     }
 
     private boolean isBlank(String value) {
@@ -489,17 +648,17 @@ public class AdminDashboardController {
         }
 
         String normalizedName = name.trim().toUpperCase(Locale.ROOT);
-        ValidationResult fullNameResult = Validator.validateAdminFullName(normalizedName);
+        ValidationResult fullNameResult = Validator.validateName(normalizedName);
         if (!fullNameResult.isValid()) {
             return fullNameResult;
         }
 
-        ValidationResult emailResult = Validator.validateAdminEmail(email.trim());
+        ValidationResult emailResult = Validator.validateEmail(email.trim());
         if (!emailResult.isValid()) {
             return emailResult;
         }
 
-        ValidationResult phoneResult = Validator.validateAdminPhone(phone.trim());
+        ValidationResult phoneResult = Validator.validatePhone(phone.trim());
         if (!phoneResult.isValid()) {
             return phoneResult;
         }

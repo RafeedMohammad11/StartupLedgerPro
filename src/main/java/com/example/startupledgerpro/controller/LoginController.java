@@ -3,6 +3,7 @@ package com.example.startupledgerpro.controller;
 import com.example.startupledgerpro.factory.AppFactory;
 import com.example.startupledgerpro.model.User;
 import com.example.startupledgerpro.session.SessionManager;
+import com.example.startupledgerpro.util.ExceptionHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,6 +12,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class LoginController {
@@ -42,21 +45,24 @@ public class LoginController {
             return;
         }
 
-        // Delegate execution to your business logic layer via AppFactory
-        var result = AppFactory.authService.login(email, password);
+        try {
+            var result = AppFactory.authService.login(email, password);
 
-        if (!result.isSuccess()) {
+            if (!result.isSuccess()) {
+                passwordField.clear();
+                showError(result.getMessage());
+                return;
+            }
+
+            User user = SessionManager.getInstance().getCurrentUser();
+            if (user != null) {
+                navigateToDashboard(user);
+            } else {
+                showError("Session error: User data not populated.");
+            }
+        } catch (RuntimeException ex) {
             passwordField.clear();
-            showError(result.getMessage());
-            return;
-        }
-
-        // Authentication passed -> retrieve user from state manager
-        User user = SessionManager.getInstance().getCurrentUser();
-        if (user != null) {
-            navigateToDashboard(user);
-        } else {
-            showError("Session error: User data not populated.");
+            showError(ExceptionHandler.resolveMessage(ex));
         }
     }
 
@@ -69,8 +75,15 @@ public class LoginController {
             Parent root = loader.load();
 
             Stage stage = (Stage) emailField.getScene().getWindow();
-            stage.setScene(new Scene(root, 1280, 800));
+            stage.setScene(new Scene(root));
             stage.setTitle("StartupLedger Pro — " + user.getName());
+            Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+            double width = Math.min(1320, bounds.getWidth() * 0.96);
+            double height = Math.min(860, bounds.getHeight() * 0.94);
+            stage.setWidth(width);
+            stage.setHeight(height);
+            stage.setMinWidth(1100);
+            stage.setMinHeight(700);
             stage.centerOnScreen();
             stage.setResizable(true);
             stage.show();

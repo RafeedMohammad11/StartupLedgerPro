@@ -52,6 +52,14 @@
                     </children>
                 </VBox>
 
+                <VBox prefWidth="250.0" spacing="8.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 12px; -fx-border-color: #E5E9EB; -fx-border-radius: 12px;" HBox.hgrow="ALWAYS">
+                    <padding><Insets bottom="15.0" left="20.0" right="20.0" top="15.0" /></padding>
+                    <children>
+                        <Label style="-fx-text-fill: #848D95; -fx-font-size: 12px; -fx-font-weight: bold;" text="REMAINING BALANCE" />
+                        <Label fx:id="projectRemainingBalanceLabel" style="-fx-text-fill: #1C1F21; -fx-font-size: 20px; -fx-font-weight: bold;" text="Tk 0.00" />
+                    </children>
+                </VBox>
+
                 <VBox spacing="8.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 12px; -fx-border-color: #E5E9EB; -fx-border-radius: 12px;" HBox.hgrow="ALWAYS">
                     <padding><Insets bottom="15.0" left="20.0" right="20.0" top="15.0" /></padding>
                     <children>

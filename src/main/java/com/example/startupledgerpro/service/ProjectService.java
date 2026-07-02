@@ -1,10 +1,12 @@
 package com.example.startupledgerpro.service;
 
+import com.example.startupledgerpro.exception.EntityNotFoundException;
+import com.example.startupledgerpro.exception.ValidationException;
 import com.example.startupledgerpro.model.Project;
 import com.example.startupledgerpro.model.enums.ProjectCategory;
 import com.example.startupledgerpro.model.enums.ProjectStatus;
 import com.example.startupledgerpro.repository.ProjectRepository;
-import com.example.startupledgerpro.service.NotificationService;
+import com.example.startupledgerpro.util.Validator;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,71 +22,70 @@ public class ProjectService {
         this.notificationService = notificationService;
     }
 
-    // ── CREATE PROJECT ────────────────────────────────────────────
     public Project createProject(String name, String description, String managerId,
             ProjectCategory category, double budget, String deadline) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Project name must not be empty.");
+        Validator.requireValid(Validator.validateProjectName(name));
+        Validator.requireValid(Validator.validateAmount(budget, "Budget"));
+        Validator.requireValid(Validator.validateDate(deadline, "Deadline"));
+        if (category == null) {
+            throw new ValidationException("category", "Project category is required.");
         }
-        if (budget <= 0) {
-            throw new IllegalArgumentException("Budget must be greater than zero.");
+        if (managerId == null || managerId.isBlank()) {
+            throw new ValidationException("manager", "Project manager is required.");
         }
 
         Project project = new Project.Builder()
                 .id("prj-" + UUID.randomUUID().toString().substring(0, 8))
-                .name(name)
+                .name(name.trim())
                 .description(description)
                 .managerId(managerId)
                 .category(category)
                 .status(ProjectStatus.PLANNING)
                 .budget(budget)
-                .deadline(deadline)
+                .deadline(deadline.trim())
                 .build();
 
         projectRepository.save(project);
-        if (managerId != null && !managerId.isBlank()) {
-            notificationService.createIfMissing(managerId,
-                    "New project assigned: " + name,
-                    "A new project '" + name + "' has been assigned to you.");
-        }
+        notificationService.createIfMissing(managerId,
+                "New project assigned: " + name,
+                "A new project '" + name + "' has been assigned to you.");
         return project;
     }
 
-    // ── GET ALL ───────────────────────────────────────────────────
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }
 
-    // ── GET BY MANAGER ────────────────────────────────────────────
     public List<Project> getProjectsByManager(String managerId) {
         return projectRepository.findByManagerId(managerId);
     }
 
-    // ── GET BY STATUS ─────────────────────────────────────────────
     public List<Project> getProjectsByStatus(ProjectStatus status) {
         return projectRepository.findByStatus(status);
     }
 
-    // ── GET BY CATEGORY ───────────────────────────────────────────
     public List<Project> getProjectsByCategory(ProjectCategory category) {
         return projectRepository.findByCategory(category);
     }
 
-    // ── GET BY ID ─────────────────────────────────────────────────
     public Optional<Project> getProjectById(String id) {
         return projectRepository.findById(id);
     }
 
-    // ── UPDATE STATUS ─────────────────────────────────────────────
     public void updateStatus(String projectId, ProjectStatus newStatus) {
-        projectRepository.findById(projectId).ifPresent(project -> {
-            project.setStatus(newStatus);
-            projectRepository.save(project);
-        });
+        if (newStatus == null) {
+            throw new ValidationException("status", "Project status is required.");
+        }
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException("Project", projectId));
+        project.setStatus(newStatus);
+        projectRepository.save(project);
     }
 
-    // ── DELETE ────────────────────────────────────────────────────
     public void deleteProject(String id) {
+        if (projectRepository.findById(id).isEmpty()) {
+            throw new EntityNotFoundException("Project", id);
+        }
         projectRepository.delete(id);
     }
 }

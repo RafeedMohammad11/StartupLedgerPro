@@ -1,5 +1,6 @@
 package com.example.startupledgerpro.service;
 
+import com.example.startupledgerpro.exception.ValidationException;
 import com.example.startupledgerpro.model.Notification;
 import com.example.startupledgerpro.repository.NotificationRepository;
 
@@ -15,7 +16,7 @@ public class NotificationService {
 
     public Notification createNotification(String recipientId, String title, String message) {
         if (recipientId == null || recipientId.isBlank()) {
-            throw new IllegalArgumentException("Notification recipient is required.");
+            throw new ValidationException("recipient", "Notification recipient is required.");
         }
         String id = "notif-" + UUID.randomUUID().toString().substring(0, 8);
         Notification notification = new Notification(id, recipientId, title, message, false);

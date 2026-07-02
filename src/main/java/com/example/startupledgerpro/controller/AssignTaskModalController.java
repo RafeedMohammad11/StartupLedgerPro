@@ -2,6 +2,7 @@ package com.example.startupledgerpro.controller;
 
 import com.example.startupledgerpro.factory.AppFactory;
 import com.example.startupledgerpro.model.User;
+import com.example.startupledgerpro.util.ExceptionHandler;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -83,19 +84,18 @@ public class AssignTaskModalController {
 
         // Basic form validation checks
         if (title == null || title.isBlank() || assigneeId == null || dueDatePicker.getValue() == null) {
-            System.out.println("Validation Warning: Please fulfill all mandatory modal fields.");
+            ExceptionHandler.showWarning("Assign Task", "Please fill in title, assignee, and due date.");
             return;
         }
 
         String dueDate = dueDatePicker.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         try {
-            // Persist the new task entry directly using the AppFactory concrete task service
             AppFactory.taskService.createTask(targetProjectId, title, description, assigneeId, dueDate);
             saveClicked = true;
             closeStage();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException ex) {
+            ExceptionHandler.handle("Assign Task", ex);
         }
     }
 

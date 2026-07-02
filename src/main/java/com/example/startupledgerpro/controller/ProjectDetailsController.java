@@ -7,6 +7,7 @@ import com.example.startupledgerpro.model.Task;
 import com.example.startupledgerpro.service.QuotationService;
 import com.example.startupledgerpro.service.TaskService;
 import com.example.startupledgerpro.session.SessionManager;
+import com.example.startupledgerpro.util.CurrencyUtil;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -34,6 +35,8 @@ public class ProjectDetailsController {
     private Label projectBudgetLabel;
     @FXML
     private Label projectStatusLabel;
+    @FXML
+    private Label projectRemainingBalanceLabel;
     @FXML
     private Label projectDescriptionLabel;
 
@@ -80,6 +83,8 @@ public class ProjectDetailsController {
         projectCategoryLabel
                 .setText("Track: " + (project.getCategory() != null ? project.getCategory().name() : "N/A"));
         projectBudgetLabel.setText(String.format("Tk %,.2f", project.getBudget()));
+        double remaining = AppFactory.financialService.getRemainingBalance(project.getId());
+        projectRemainingBalanceLabel.setText(CurrencyUtil.formatBdt(remaining));
 
         // Safely convert ProjectStatus enum to String text for the UI label widget
         projectStatusLabel.setText(project.getStatus() != null ? project.getStatus().name() : "PLANNING");

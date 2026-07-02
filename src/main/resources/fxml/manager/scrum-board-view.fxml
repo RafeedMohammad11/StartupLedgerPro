@@ -17,6 +17,7 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.example.startupledgerpro.controller.ScrumBoardController"
             stylesheets="@../../css/styles.css"
+            styleClass="scrum-board-root"
             style="-fx-background-color: #F1F5F9;">
 
     <!-- ═══════════════════════════════════════
@@ -74,7 +75,7 @@
                                  -fx-border-radius: 20;
                                  -fx-background-radius: 20;
                                  -fx-padding: 6 14;">
-                        <Label text="📋"
+                        <Label text="TOTAL"
                                style="-fx-font-size: 12px;"/>
                         <Label fx:id="totalTasksChip"
                                text="0 Total"
@@ -89,7 +90,7 @@
                                  -fx-border-radius: 20;
                                  -fx-background-radius: 20;
                                  -fx-padding: 6 14;">
-                        <Label text="⚡"
+                        <Label text="ACTIVE"
                                style="-fx-font-size: 12px;"/>
                         <Label fx:id="inProgressChip"
                                text="0 Active"
@@ -104,7 +105,7 @@
                                  -fx-border-radius: 20;
                                  -fx-background-radius: 20;
                                  -fx-padding: 6 14;">
-                        <Label text="✅"
+                        <Label text="DONE"
                                style="-fx-font-size: 12px;"/>
                         <Label fx:id="doneChip"
                                text="0 Done"
@@ -118,7 +119,7 @@
                 <!-- Action buttons -->
                 <HBox spacing="10" alignment="CENTER_RIGHT">
                     <Region HBox.hgrow="ALWAYS" />
-                    <Button text="⟳  Refresh"
+                    <Button text="Refresh"
                             onAction="#handleRefreshScrumBoard"
                             style="-fx-background-color: transparent;
                                    -fx-border-color: #E2E8F0;
@@ -128,7 +129,7 @@
                                    -fx-font-size: 13px;
                                    -fx-padding: 8 16;
                                    -fx-cursor: hand;"/>
-                    <Button text="➕  Add Task"
+                    <Button text="Add Task"
                             onAction="#handleAddTask"
                             style="-fx-background-color: #00B37E;
                                    -fx-text-fill: white;
@@ -137,7 +138,7 @@
                                    -fx-background-radius: 8;
                                    -fx-padding: 8 18;
                                    -fx-cursor: hand;"/>
-                    <Button text="🚪 Log Out"
+                    <Button text="Log Out"
                             onAction="#handleLogout"
                             styleClass="button-danger"
                             style="-fx-font-size: 13px;"/>

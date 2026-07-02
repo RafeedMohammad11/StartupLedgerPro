@@ -1,12 +1,13 @@
 package com.example.startupledgerpro.controller;
 
 import com.example.startupledgerpro.factory.AppFactory;
-import com.example.startupledgerpro.model.Project;
 import com.example.startupledgerpro.model.User;
 import com.example.startupledgerpro.model.enums.ProjectCategory;
-import com.example.startupledgerpro.model.enums.ProjectStatus;
 import com.example.startupledgerpro.model.enums.UserRole;
 import com.example.startupledgerpro.session.SessionManager;
+import com.example.startupledgerpro.util.ExceptionHandler;
+import com.example.startupledgerpro.util.ValidationResult;
+import com.example.startupledgerpro.util.Validator;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -14,8 +15,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-
-import java.util.UUID;
 
 public class CreateProjectModalController {
 
@@ -38,7 +37,6 @@ public class CreateProjectModalController {
 
     @FXML
     public void initialize() {
-        // Populate from enum — uses toString() which returns displayName
         categoryComboBox.setItems(
                 FXCollections.observableArrayList(ProjectCategory.values()));
         managerComboBox.setItems(
@@ -58,38 +56,39 @@ public class CreateProjectModalController {
     private void handleSave() {
         errorLabel.setText("");
 
-        // Read inputs
         String name = nameField.getText().trim();
         ProjectCategory cat = categoryComboBox.getValue();
         String budgetText = budgetField.getText().trim();
         String deadline = deadlineField.getText().trim();
         String description = descriptionArea.getText().trim();
 
-        // Validate
-        if (name.isEmpty()) {
-            errorLabel.setText("Project name is required.");
+        ValidationResult nameResult = Validator.validateProjectName(name);
+        if (!nameResult.isValid()) {
+            errorLabel.setText(nameResult.getErrorMessage());
             return;
         }
         if (cat == null) {
             errorLabel.setText("Please select a category.");
             return;
         }
-        if (budgetText.isEmpty()) {
-            errorLabel.setText("Budget is required.");
+
+        ValidationResult budgetResult = Validator.validateBudget(budgetText);
+        if (!budgetResult.isValid()) {
+            errorLabel.setText(budgetResult.getErrorMessage());
             return;
         }
-        if (deadline.isEmpty()) {
-            errorLabel.setText("Deadline is required (YYYY-MM-DD).");
+
+        ValidationResult deadlineResult = Validator.validateDate(deadline, "Deadline");
+        if (!deadlineResult.isValid()) {
+            errorLabel.setText(deadlineResult.getErrorMessage());
             return;
         }
 
         double budget;
         try {
             budget = Double.parseDouble(budgetText);
-            if (budget <= 0)
-                throw new NumberFormatException();
         } catch (NumberFormatException e) {
-            errorLabel.setText("Budget must be a positive number.");
+            errorLabel.setText(ExceptionHandler.resolveMessage(e));
             return;
         }
 
@@ -107,10 +106,13 @@ public class CreateProjectModalController {
             return;
         }
 
-        AppFactory.projectService.createProject(name, description, managerId, cat, budget, deadline);
-
-        saveClicked = true;
-        closeStage();
+        try {
+            AppFactory.projectService.createProject(name, description, managerId, cat, budget, deadline);
+            saveClicked = true;
+            closeStage();
+        } catch (RuntimeException ex) {
+            errorLabel.setText(ExceptionHandler.resolveMessage(ex));
+        }
     }
 
     @FXML

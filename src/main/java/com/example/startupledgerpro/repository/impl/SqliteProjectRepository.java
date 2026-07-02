@@ -5,6 +5,7 @@ import com.example.startupledgerpro.model.Project;
 import com.example.startupledgerpro.model.enums.ProjectCategory;
 import com.example.startupledgerpro.model.enums.ProjectStatus;
 import com.example.startupledgerpro.repository.ProjectRepository;
+import com.example.startupledgerpro.util.ErrorMessages;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class SqliteProjectRepository implements ProjectRepository {
                 projects.add(mapRow(rs));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return projects;
     }
@@ -54,7 +55,7 @@ public class SqliteProjectRepository implements ProjectRepository {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) return Optional.of(mapRow(rs));
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return Optional.empty();
     }
@@ -86,7 +87,7 @@ public class SqliteProjectRepository implements ProjectRepository {
             stmt.setString(8, project.getDeadline());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return project;
     }
@@ -100,7 +101,7 @@ public class SqliteProjectRepository implements ProjectRepository {
             stmt.setString(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
     }
 
@@ -135,7 +136,7 @@ public class SqliteProjectRepository implements ProjectRepository {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) results.add(mapRow(rs));
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return results;
     }

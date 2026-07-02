@@ -5,6 +5,7 @@ import com.example.startupledgerpro.factory.UserFactory;
 import com.example.startupledgerpro.model.User;
 import com.example.startupledgerpro.model.enums.UserRole;
 import com.example.startupledgerpro.repository.UserRepository;
+import com.example.startupledgerpro.util.ErrorMessages;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,7 +45,7 @@ public class SqliteUserRepository implements UserRepository {
             stmt.setString(8, user.getJoinDate());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Error saving user to database", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return user;
     }
@@ -61,7 +62,7 @@ public class SqliteUserRepository implements UserRepository {
                     return Optional.of(mapRow(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error querying user by ID", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return Optional.empty();
     }
@@ -78,7 +79,7 @@ public class SqliteUserRepository implements UserRepository {
                     return Optional.of(mapRow(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error querying user by email", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return Optional.empty();
     }
@@ -94,7 +95,7 @@ public class SqliteUserRepository implements UserRepository {
             while (rs.next())
                 users.add(mapRow(rs));
         } catch (SQLException e) {
-            throw new RuntimeException("Error querying all users", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return users;
     }
@@ -112,7 +113,7 @@ public class SqliteUserRepository implements UserRepository {
                     users.add(mapRow(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error querying users by role", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return users;
     }
@@ -126,7 +127,7 @@ public class SqliteUserRepository implements UserRepository {
             stmt.setString(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Error deleting user", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
     }
 

@@ -3,6 +3,7 @@ package com.example.startupledgerpro.repository.impl;
 import com.example.startupledgerpro.config.DatabaseManager;
 import com.example.startupledgerpro.model.Notification;
 import com.example.startupledgerpro.repository.NotificationRepository;
+import com.example.startupledgerpro.util.ErrorMessages;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -43,7 +44,7 @@ public class SqliteNotificationRepository implements NotificationRepository {
             stmt.setInt(5, notification.isRead() ? 1 : 0);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Error saving notification", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return notification;
     }
@@ -60,7 +61,7 @@ public class SqliteNotificationRepository implements NotificationRepository {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error querying notification by id", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return Optional.empty();
     }
@@ -76,7 +77,7 @@ public class SqliteNotificationRepository implements NotificationRepository {
                 notifications.add(mapRow(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error querying notifications", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return notifications;
     }
@@ -89,7 +90,7 @@ public class SqliteNotificationRepository implements NotificationRepository {
             stmt.setString(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Error deleting notification", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
     }
 
@@ -106,7 +107,7 @@ public class SqliteNotificationRepository implements NotificationRepository {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error querying notifications for recipient", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return notifications;
     }
@@ -124,7 +125,7 @@ public class SqliteNotificationRepository implements NotificationRepository {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error querying unread notifications", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return notifications;
     }
@@ -137,7 +138,7 @@ public class SqliteNotificationRepository implements NotificationRepository {
             stmt.setString(1, notificationId);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Error marking notification as read", e);
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
     }
 }

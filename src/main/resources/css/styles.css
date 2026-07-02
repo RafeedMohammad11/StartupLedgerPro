@@ -6,7 +6,7 @@
 
 /* Typography rules */
 .label {
-    -fx-text-fill: #E1E1E6;
+    -fx-text-fill: #1C1F21;
 }
 .header-text {
     -fx-font-size: 24px;
@@ -396,6 +396,11 @@
     -fx-alignment: center-left;
 }
 
+/* Generic table fallback for screens not using .light-table */
+.table-view .table-cell {
+    -fx-text-fill: #18181B;
+}
+
 /* Row states background styling */
 .light-table .table-row-cell {
     -fx-background-color: #FFFFFF;
@@ -408,4 +413,399 @@
 
 .light-table .table-row-cell:filled:hover {
     -fx-background-color: #FAFAFA;
+}
+
+/* ═══════════════════════════════════════════════
+   ADMIN DASHBOARD ENHANCEMENTS
+   ═══════════════════════════════════════════════ */
+
+.admin-root {
+    -fx-background-color: #F4F4F5;
+}
+
+.admin-scroll {
+    -fx-background: #F4F4F5;
+    -fx-background-color: #F4F4F5;
+    -fx-border-color: transparent;
+}
+
+.admin-brand-icon {
+    -fx-background-color: #ECFDF5;
+    -fx-background-radius: 10;
+    -fx-pref-width: 40;
+    -fx-pref-height: 40;
+}
+
+.sidebar-section-label {
+    -fx-text-fill: #A1A1AA;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 8 10 8;
+}
+
+.admin-profile-card {
+    -fx-background-color: #F9FAFB;
+    -fx-background-radius: 12;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 12;
+    -fx-padding: 14;
+}
+
+.admin-profile-avatar {
+    -fx-background-color: linear-gradient(to bottom right, #00B37E, #059669);
+    -fx-background-radius: 22;
+    -fx-pref-width: 44;
+    -fx-pref-height: 44;
+}
+
+.admin-profile-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.admin-profile-name {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: #18181B;
+}
+
+.admin-profile-email {
+    -fx-font-size: 10px;
+    -fx-text-fill: #A1A1AA;
+}
+
+.admin-topbar {
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.04), 8, 0, 0, 2);
+}
+
+.admin-page-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #18181B;
+}
+
+.admin-page-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #71717A;
+}
+
+.stat-card-users {
+    -fx-border-color: #BBF7D0;
+}
+
+.stat-card-projects {
+    -fx-border-color: #BFDBFE;
+}
+
+.stat-card-budget {
+    -fx-border-color: #DDD6FE;
+}
+
+.stat-card-balance {
+    -fx-border-color: #BBF7D0;
+}
+
+.stat-card-tasks {
+    -fx-border-color: #FDE68A;
+}
+
+.stat-number-compact {
+    -fx-font-size: 24px;
+    -fx-text-fill: #0F172A;
+}
+
+/* Ensure financial values remain high-contrast on light cards */
+#totalBudgetLabel,
+#remainingBalanceLabel,
+#budgetTotalLabel {
+    -fx-text-fill: #0F172A;
+    -fx-font-weight: bold;
+}
+
+.stat-chip {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-padding: 3 8;
+}
+
+.stat-chip-green {
+    -fx-background-color: #ECFDF5;
+    -fx-text-fill: #059669;
+}
+
+.stat-chip-blue {
+    -fx-background-color: #EFF6FF;
+    -fx-text-fill: #2563EB;
+}
+
+.stat-chip-purple {
+    -fx-background-color: #F5F3FF;
+    -fx-text-fill: #7C3AED;
+}
+
+.stat-chip-amber {
+    -fx-background-color: #FFFBEB;
+    -fx-text-fill: #D97706;
+}
+
+.admin-panel {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 14;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 22;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.05), 10, 0, 0, 2);
+}
+
+.admin-form-panel {
+    -fx-background-color: #FAFAFA;
+}
+
+.admin-tab-pane {
+    -fx-background-color: transparent;
+}
+
+.admin-tab-pane .tab-header-area {
+    -fx-padding: 0 0 8 0;
+}
+
+.admin-tab-pane .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.admin-tab-pane .tab {
+    -fx-background-color: #E4E4E7;
+    -fx-background-radius: 8 8 0 0;
+    -fx-padding: 10 22;
+}
+
+.admin-tab-pane .tab:selected {
+    -fx-background-color: #FFFFFF;
+    -fx-font-weight: bold;
+}
+
+.admin-tab-pane .tab .tab-label {
+    -fx-text-fill: #52525B;
+    -fx-font-size: 13px;
+}
+
+.admin-tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #00B37E;
+}
+
+.admin-tab-pane .tab-content-area {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.form-field-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #71717A;
+}
+
+.form-validation-label {
+    -fx-text-fill: #71717A;
+    -fx-font-size: 11px;
+}
+
+.admin-hint {
+    -fx-font-size: 11px;
+    -fx-text-fill: #A1A1AA;
+    -fx-font-style: italic;
+}
+
+.admin-status-bar {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 10;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 10;
+    -fx-padding: 10 16;
+    -fx-spacing: 8;
+}
+
+.admin-status-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #52525B;
+}
+
+.badge-active {
+    -fx-background-color: #DCFCE7;
+    -fx-text-fill: #166534;
+    -fx-background-radius: 20;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-inactive {
+    -fx-background-color: #FEE2E2;
+    -fx-text-fill: #991B1B;
+    -fx-background-radius: 20;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-status {
+    -fx-background-color: #F4F4F5;
+    -fx-text-fill: #52525B;
+    -fx-background-radius: 20;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* ═══════════════════════════════════════════════
+   USER DETAILS MODAL
+   ═══════════════════════════════════════════════ */
+
+.modal-root {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 16;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.18), 24, 0, 0, 8);
+}
+
+.user-modal-header {
+    -fx-background-color: linear-gradient(to bottom right, #059669, #00B37E);
+    -fx-background-radius: 16 16 0 0;
+}
+
+.user-modal-avatar {
+    -fx-background-color: rgba(255, 255, 255, 0.22);
+    -fx-background-radius: 44;
+    -fx-border-color: rgba(255, 255, 255, 0.45);
+    -fx-border-radius: 44;
+    -fx-border-width: 2;
+    -fx-pref-width: 88;
+    -fx-pref-height: 88;
+}
+
+.user-modal-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.user-modal-name {
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.user-modal-email {
+    -fx-text-fill: rgba(255, 255, 255, 0.88);
+    -fx-font-size: 13px;
+}
+
+.user-modal-body {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 0 0 16 16;
+}
+
+.user-modal-section-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #18181B;
+}
+
+.user-detail-card {
+    -fx-background-color: #F9FAFB;
+    -fx-background-radius: 10;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 14;
+    -fx-spacing: 6;
+}
+
+.user-detail-label {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #A1A1AA;
+}
+
+.user-detail-value {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #18181B;
+}
+
+.user-id-card {
+    -fx-background-color: #F0FDF4;
+    -fx-border-color: #BBF7D0;
+}
+
+.user-id-value {
+    -fx-font-family: "Consolas", "Courier New", monospace;
+    -fx-text-fill: #059669;
+}
+
+.light-text-area {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #18181B;
+    -fx-background-radius: 8px;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1.5px;
+    -fx-padding: 10px;
+    -fx-font-size: 13px;
+}
+
+.project-modal-header {
+    -fx-background-color: linear-gradient(to bottom right, #4338CA, #6366F1);
+    -fx-background-radius: 16 16 0 0;
+}
+
+.project-modal-icon {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+    -fx-background-radius: 44;
+    -fx-border-color: rgba(255, 255, 255, 0.35);
+    -fx-border-radius: 44;
+    -fx-border-width: 2;
+    -fx-pref-width: 72;
+    -fx-pref-height: 72;
+}
+
+.project-budget-value {
+    -fx-text-fill: #059669;
+    -fx-font-size: 16px;
+}
+
+.project-description-area {
+    -fx-background-color: #FAFAFA;
+}
+
+/* ═══════════════════════════════════════════════
+   SCRUM BOARD PROFESSIONAL POLISH
+   ═══════════════════════════════════════════════ */
+
+.scrum-board-root {
+    -fx-background-color: #F1F5F9;
+}
+
+.scrum-board-root .label {
+    -fx-text-fill: #0F172A;
+}
+
+.scrum-board-root .combo-box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.scrum-board-root .scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scrum-board-root .scroll-pane > .viewport {
+    -fx-background-color: transparent;
 }

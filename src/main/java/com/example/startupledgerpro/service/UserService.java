@@ -1,15 +1,19 @@
 package com.example.startupledgerpro.service;
 
+import com.example.startupledgerpro.exception.DuplicateEmailException;
+import com.example.startupledgerpro.exception.EntityNotFoundException;
+import com.example.startupledgerpro.exception.ValidationException;
 import com.example.startupledgerpro.factory.UserFactory;
 import com.example.startupledgerpro.model.User;
 import com.example.startupledgerpro.model.enums.UserRole;
 import com.example.startupledgerpro.repository.UserRepository;
+import com.example.startupledgerpro.util.IdGenerator;
 import com.example.startupledgerpro.util.PasswordUtil;
+import com.example.startupledgerpro.util.Validator;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public class UserService {
     private final UserRepository userRepository;
@@ -18,79 +22,112 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    // -----CREATE USER------------------------
     public User createUser(String name, String email, String password, UserRole role, String phone) {
-        // check for duplicate email
-        if (userRepository.findByEmail(email).isPresent()) {
-            throw new IllegalArgumentException("An account with this email already exists");
-        }
-
-        String id = "user-" + UUID.randomUUID().toString().substring(0, 8);
-        String passwordHash = PasswordUtil.hash(password);
-        String joinDate = LocalDate.now().toString();
-
-        User user = UserFactory.create(id, name, email, passwordHash, role, phone, joinDate, true);
-        userRepository.save(user);
-
-        return user;
+        return createUser(name, email, password, role, phone, LocalDate.now().toString());
     }
 
     public User createUser(String name, String email, String password, UserRole role, String phone, String joinDate) {
-        if (userRepository.findByEmail(email).isPresent()) {
-            throw new IllegalArgumentException("An account with this email already exists");
+        Validator.requireValid(Validator.validateName(name));
+        Validator.requireValid(Validator.validateEmail(email));
+        Validator.requireValid(Validator.validatePassword(password));
+        Validator.requireValid(Validator.validatePhone(phone));
+        if (role == null) {
+            throw new ValidationException("role", "Role is required.");
+        }
+
+        String normalizedEmail = email.trim();
+        if (userRepository.findByEmail(normalizedEmail).isPresent()) {
+            throw new DuplicateEmailException(normalizedEmail);
         }
 
         if (joinDate == null || joinDate.isBlank()) {
             joinDate = LocalDate.now().toString();
         }
 
-        String id = "user-" + UUID.randomUUID().toString().substring(0, 8);
+        String id = generateUniqueUserId(role);
         String passwordHash = PasswordUtil.hash(password);
 
-        User user = UserFactory.create(id, name, email, passwordHash, role, phone, joinDate, true);
+        User user = UserFactory.create(id, name.trim(), normalizedEmail, passwordHash, role, phone, joinDate, true);
         userRepository.save(user);
 
         return user;
     }
 
-    // -----GET ALL USERS---------------
+    public User updateUser(String userId, String name, String email, String phone, UserRole role,
+            String joinDate, boolean active) {
+        User existing = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User", userId));
+
+        Validator.requireValid(Validator.validateName(name));
+        Validator.requireValid(Validator.validateEmail(email));
+        Validator.requireValid(Validator.validatePhone(phone));
+        if (role == null) {
+            throw new ValidationException("role", "Role is required.");
+        }
+        if (joinDate == null || joinDate.isBlank()) {
+            throw new ValidationException("joinDate", "Joining date is required.");
+        }
+        Validator.requireValid(Validator.validateDate(joinDate, "Joining date"));
+
+        String normalizedEmail = email.trim();
+        if (!existing.getEmail().equalsIgnoreCase(normalizedEmail)
+                && userRepository.findByEmail(normalizedEmail).isPresent()) {
+            throw new DuplicateEmailException(normalizedEmail);
+        }
+
+        User updated = UserFactory.create(
+                existing.getId(),
+                name.trim(),
+                normalizedEmail,
+                existing.getPasswordHash(),
+                role,
+                phone,
+                joinDate.trim(),
+                active);
+        userRepository.save(updated);
+        return updated;
+    }
+
+    private String generateUniqueUserId(UserRole role) {
+        String id;
+        do {
+            id = IdGenerator.generateUserId(role);
+        } while (userRepository.findById(id).isPresent());
+        return id;
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    // ------GET BY ROLE----------------
     public List<User> getUserByRole(UserRole role) {
         return userRepository.findByRole(role);
     }
 
-    // ── GET BY ID ─────────────────────────────────────────────────
     public Optional<User> getUserById(String id) {
         return userRepository.findById(id);
     }
 
-    // ── DEACTIVATE ────────────────────────────────────────────────
     public void deactivateUser(String userId) {
-        userRepository.findById(userId).ifPresent(user -> {
-            user.setActive(false);
-            userRepository.save(user);
-        });
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User", userId));
+        user.setActive(false);
+        userRepository.save(user);
     }
 
-    // ── RESET PASSWORD ────────────────────────────────────────────
     public void resetPassword(String userId, String newPassword) {
-        userRepository.findById(userId).ifPresent(user -> {
-            // Can't directly set passwordHash — User is immutable on that field
-            // Recreate user with new hash via UserFactory
-            User updated = UserFactory.create(
-                    user.getId(),
-                    user.getName(),
-                    user.getEmail(),
-                    PasswordUtil.hash(newPassword),
-                    user.getRole(),
-                    user.getPhone(),
-                    user.getJoinDate(),
-                    user.isActive());
-            userRepository.save(updated);
-        });
+        Validator.requireValid(Validator.validatePassword(newPassword));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User", userId));
+        User updated = UserFactory.create(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                PasswordUtil.hash(newPassword),
+                user.getRole(),
+                user.getPhone(),
+                user.getJoinDate(),
+                user.isActive());
+        userRepository.save(updated);
     }
 }

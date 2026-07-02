@@ -5,14 +5,14 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -22,149 +22,200 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.example.startupledgerpro.controller.AdminDashboardController"
       stylesheets="@../../css/styles.css"
-      style="-fx-background-color: #F4F4F5;"
+      styleClass="admin-root"
       prefWidth="1280" prefHeight="800">
 
-    <VBox prefWidth="240" spacing="4" styleClass="light-sidebar">
-        <padding><Insets top="0" right="12" bottom="24" left="12"/></padding>
+    <!-- Sidebar -->
+    <VBox prefWidth="260" spacing="6" styleClass="light-sidebar">
+        <padding><Insets top="0" right="16" bottom="24" left="16"/></padding>
 
-        <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 24 8 28 8;">
-            <StackPane style="-fx-background-color: #00B37E22; -fx-background-radius: 10; -fx-pref-width: 36; -fx-pref-height: 36;">
+        <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 28 8 32 8;">
+            <StackPane styleClass="admin-brand-icon">
                 <Label text="SL" style="-fx-text-fill: #00B37E; -fx-font-weight: bold; -fx-font-size: 14px;"/>
             </StackPane>
-            <VBox spacing="1">
-                <Label text="StartupLedger" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #18181B;"/>
-                <Label text="Admin Panel" style="-fx-font-size: 11px; -fx-text-fill: #A1A1AA;"/>
+            <VBox spacing="2">
+                <Label text="StartupLedger" style="-fx-font-weight: bold; -fx-font-size: 15px; -fx-text-fill: #18181B;"/>
+                <Label text="Admin Console" style="-fx-font-size: 11px; -fx-text-fill: #A1A1AA;"/>
             </VBox>
         </HBox>
 
-        <Label text="MAIN MENU" style="-fx-text-fill: #A1A1AA; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 0 8 8 8;"/>
-        <Button text="Dashboard" maxWidth="Infinity" styleClass="light-sidebar-btn-active" onAction="#handleShowDashboard"/>
-        <Button text="User Management" maxWidth="Infinity" styleClass="light-sidebar-btn" onAction="#handleShowUsers"/>
-        <Button text="Project Oversight" maxWidth="Infinity" styleClass="light-sidebar-btn" onAction="#handleShowProjects"/>
-        <Button text="Refresh Data" maxWidth="Infinity" styleClass="light-sidebar-btn" onAction="#refreshDashboard"/>
-
-        <Separator style="-fx-background-color: #E4E4E7; -fx-padding: 8 0;">
-            <VBox.margin><Insets top="12" bottom="12"/></VBox.margin>
-        </Separator>
+        <Label text="MAIN MENU" styleClass="sidebar-section-label"/>
+        <Button text="📊  Dashboard" maxWidth="Infinity" styleClass="light-sidebar-btn-active" onAction="#handleShowDashboard"/>
+        <Button text="👥  User Management" maxWidth="Infinity" styleClass="light-sidebar-btn" onAction="#handleShowUsers"/>
+        <Button text="📁  Project Oversight" maxWidth="Infinity" styleClass="light-sidebar-btn" onAction="#handleShowProjects"/>
+        <Button text="🔄  Refresh Data" maxWidth="Infinity" styleClass="light-sidebar-btn" onAction="#refreshDashboard"/>
 
         <Region VBox.vgrow="ALWAYS"/>
 
-        <VBox style="-fx-background-color: #F4F4F5; -fx-background-radius: 10; -fx-padding: 12;">
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <StackPane style="-fx-background-color: #00B37E; -fx-background-radius: 20; -fx-pref-width: 34; -fx-pref-height: 34;">
-                    <Label text="AD" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+        <VBox styleClass="admin-profile-card">
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <StackPane styleClass="admin-profile-avatar">
+                    <Label fx:id="sidebarAvatarLabel" text="AD" styleClass="admin-profile-avatar-text"/>
                 </StackPane>
                 <VBox spacing="2" HBox.hgrow="ALWAYS">
-                    <Label fx:id="sidebarNameLabel" text="System Admin" style="-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #18181B;"/>
-                    <Label fx:id="sidebarEmailLabel" text="admin@startupledger.com" style="-fx-font-size: 10px; -fx-text-fill: #A1A1AA;"/>
+                    <Label fx:id="sidebarNameLabel" text="System Admin" styleClass="admin-profile-name"/>
+                    <Label fx:id="sidebarEmailLabel" text="admin@startupledger.com" styleClass="admin-profile-email"/>
                 </VBox>
             </HBox>
             <Button text="Sign Out" maxWidth="Infinity" styleClass="btn-danger" onAction="#handleLogout">
-                <VBox.margin><Insets top="10"/></VBox.margin>
+                <VBox.margin><Insets top="12"/></VBox.margin>
             </Button>
         </VBox>
     </VBox>
 
+    <!-- Main content -->
     <VBox HBox.hgrow="ALWAYS" spacing="0">
-        <HBox styleClass="light-topbar" alignment="CENTER_LEFT" spacing="16" prefHeight="64">
-            <padding><Insets left="32" right="32"/></padding>
-            <VBox>
-                <Label text="Dashboard Overview" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #18181B;"/>
-                <Label fx:id="topWelcomeLabel" text="Welcome back, System Admin" style="-fx-font-size: 12px; -fx-text-fill: #A1A1AA;"/>
+        <HBox styleClass="light-topbar admin-topbar" alignment="CENTER_LEFT" spacing="16" prefHeight="72">
+            <padding><Insets left="36" right="36"/></padding>
+            <VBox spacing="4">
+                <Label text="Dashboard Overview" styleClass="admin-page-title"/>
+                <Label fx:id="topWelcomeLabel" text="Welcome back, System Admin" styleClass="admin-page-subtitle"/>
             </VBox>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button text="Refresh" styleClass="btn-outline" onAction="#refreshDashboard"/>
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="↻  Refresh" styleClass="btn-outline" onAction="#refreshDashboard"/>
+            </HBox>
         </HBox>
 
-        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: #F4F4F5; -fx-background-color: #F4F4F5; -fx-border-color: transparent;">
-            <VBox spacing="24">
-                <padding><Insets top="28" right="32" bottom="32" left="32"/></padding>
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="admin-scroll">
+            <VBox spacing="28">
+                <padding><Insets top="28" right="36" bottom="36" left="36"/></padding>
 
-                <HBox spacing="20">
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="8">
-                        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                <!-- Stat cards -->
+                <HBox spacing="18">
+                    <VBox styleClass="stat-card stat-card-users" HBox.hgrow="ALWAYS" spacing="10">
+                        <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="👥" styleClass="stat-icon"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="Team" styleClass="stat-chip stat-chip-green"/>
+                        </HBox>
                         <Label fx:id="totalUsersLabel" text="0" styleClass="stat-number"/>
                         <Label text="Total Users" styleClass="stat-label"/>
                     </VBox>
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="8">
-                        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+                    <VBox styleClass="stat-card stat-card-projects" HBox.hgrow="ALWAYS" spacing="10">
+                        <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="📁" styleClass="stat-icon"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="Live" styleClass="stat-chip stat-chip-blue"/>
+                        </HBox>
                         <Label fx:id="activeProjectsLabel" text="0" styleClass="stat-number"/>
                         <Label text="Active Projects" styleClass="stat-label"/>
                     </VBox>
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="8">
-                        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
-                        <Label fx:id="totalBudgetLabel" text="0.00" styleClass="stat-number" style="-fx-font-size: 24px;"/>
+
+                    <VBox styleClass="stat-card stat-card-budget" HBox.hgrow="ALWAYS" spacing="10">
+                        <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="💰" styleClass="stat-icon"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="Portfolio" styleClass="stat-chip stat-chip-purple"/>
+                        </HBox>
+                        <Label fx:id="totalBudgetLabel" text="0.00" styleClass="stat-number stat-number-compact"/>
                         <Label text="Total Project Budget" styleClass="stat-label"/>
                     </VBox>
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="8">
-                        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+                    <VBox styleClass="stat-card stat-card-balance" HBox.hgrow="ALWAYS" spacing="10">
+                        <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="🧾" styleClass="stat-icon"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="financialHealthLabel" text="Healthy balance" styleClass="stat-chip stat-chip-green"/>
+                        </HBox>
+                        <Label fx:id="remainingBalanceLabel" text="Tk 0.00" styleClass="stat-number stat-number-compact"/>
+                        <Label text="Remaining Balance" styleClass="stat-label"/>
+                    </VBox>
+
+                    <VBox styleClass="stat-card stat-card-tasks" HBox.hgrow="ALWAYS" spacing="10">
+                        <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="✅" styleClass="stat-icon"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="Open" styleClass="stat-chip stat-chip-amber"/>
+                        </HBox>
                         <Label fx:id="pendingTasksLabel" text="0" styleClass="stat-number"/>
                         <Label text="Pending Tasks" styleClass="stat-label"/>
                     </VBox>
                 </HBox>
 
-                <TabPane fx:id="adminTabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                <!-- Tabs -->
+                <TabPane fx:id="adminTabPane" tabClosingPolicy="UNAVAILABLE" styleClass="admin-tab-pane" VBox.vgrow="ALWAYS">
                     <tabs>
                         <Tab text="Users">
-                            <HBox spacing="20">
-                                <VBox spacing="14" HBox.hgrow="ALWAYS" style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #E4E4E7; -fx-border-radius: 8; -fx-padding: 20;">
-                                    <HBox alignment="CENTER_LEFT">
-                                        <VBox>
+                            <HBox spacing="22">
+                                <VBox spacing="16" HBox.hgrow="ALWAYS" styleClass="admin-panel">
+                                    <HBox alignment="CENTER_LEFT" spacing="12">
+                                        <VBox spacing="4">
                                             <Label text="User Management" styleClass="section-title"/>
-                                            <Label text="Create accounts, deactivate users, and reset passwords." styleClass="section-sub"/>
+                                            <Label text="Create accounts, review profiles, and manage access." styleClass="section-sub"/>
                                         </VBox>
                                         <Region HBox.hgrow="ALWAYS"/>
-                                        <Button text="View Details" styleClass="btn-outline" onAction="#handleViewUserDetails"/>
-                                        <Button text="Deactivate" styleClass="btn-danger" onAction="#handleDeactivateUser"/>
-                                        <Button text="Reset Password" styleClass="btn-outline" onAction="#handleResetPassword"/>
+                                        <HBox spacing="8">
+                                            <Button text="View Profile" styleClass="btn-green" onAction="#handleViewUserDetails"/>
+                                            <Button text="Reset Password" styleClass="btn-outline" onAction="#handleResetPassword"/>
+                                            <Button text="Deactivate" styleClass="btn-danger" onAction="#handleDeactivateUser"/>
+                                        </HBox>
                                     </HBox>
-                                    <TableView fx:id="usersTableView" VBox.vgrow="ALWAYS" styleClass="light-table">
+                                    <TableView fx:id="usersTableView" VBox.vgrow="ALWAYS" styleClass="light-table" prefHeight="420">
                                         <columns>
-                                            <TableColumn fx:id="colUserName" text="Name" prefWidth="180"/>
+                                            <TableColumn fx:id="colUserName" text="Name" prefWidth="170"/>
                                             <TableColumn fx:id="colUserEmail" text="Email" prefWidth="220"/>
                                             <TableColumn fx:id="colUserRole" text="Role" prefWidth="120"/>
-                                            <TableColumn fx:id="colUserStatus" text="Status" prefWidth="100"/>
-                                            <TableColumn fx:id="colUserJoinDate" text="Joined" prefWidth="140"/>
+                                            <TableColumn fx:id="colUserStatus" text="Status" prefWidth="110"/>
+                                            <TableColumn fx:id="colUserJoinDate" text="Joined" prefWidth="130"/>
                                         </columns>
                                         <columnResizePolicy>
                                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                                         </columnResizePolicy>
                                     </TableView>
+                                    <Label text="Tip: double-click a row to open the user profile." styleClass="admin-hint"/>
                                 </VBox>
 
-                                <VBox prefWidth="300" spacing="12" style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #E4E4E7; -fx-border-radius: 8; -fx-padding: 20;">
-                                    <Label text="Create User" styleClass="section-title"/>
-                                    <TextField fx:id="nameField" promptText="Full name"/>
-                                    <TextField fx:id="emailField" promptText="Email address"/>
-                                    <TextField fx:id="phoneField" promptText="Phone"/>
-                                    <DatePicker fx:id="joinDatePicker" promptText="Joining date"/>
-                                    <PasswordField fx:id="passwordField" promptText="Temporary password"/>
-                                    <ComboBox fx:id="roleComboBox" maxWidth="Infinity"/>
-                                    <Label fx:id="createUserValidationLabel" text="" wrapText="true" style="-fx-text-fill: #71717A; -fx-font-size: 11px;"/>
+                                <VBox prefWidth="320" spacing="14" styleClass="admin-panel admin-form-panel">
+                                    <VBox spacing="4">
+                                        <Label text="Create User" styleClass="section-title"/>
+                                        <Label text="Add a new team member to the platform." styleClass="section-sub"/>
+                                    </VBox>
+                                    <Separator styleClass="light-divider"/>
+                                    <Label text="Full Name" styleClass="form-field-label"/>
+                                    <TextField fx:id="nameField" promptText="e.g. JANE DOE" styleClass="light-text-field"/>
+                                    <Label text="Email Address" styleClass="form-field-label"/>
+                                    <TextField fx:id="emailField" promptText="name@company.com" styleClass="light-text-field"/>
+                                    <Label text="Phone" styleClass="form-field-label"/>
+                                    <TextField fx:id="phoneField" promptText="01XXXXXXXXX" styleClass="light-text-field"/>
+                                    <Label text="Joining Date" styleClass="form-field-label"/>
+                                    <DatePicker fx:id="joinDatePicker" maxWidth="Infinity" styleClass="light-date-picker"/>
+                                    <Label text="Temporary Password" styleClass="form-field-label"/>
+                                    <PasswordField fx:id="passwordField" promptText="Min. 8 characters" styleClass="light-text-field"/>
+                                    <Label text="Role" styleClass="form-field-label"/>
+                                    <ComboBox fx:id="roleComboBox" maxWidth="Infinity" styleClass="light-combo-box"/>
+                                    <Label fx:id="createUserValidationLabel" text="" wrapText="true" styleClass="form-validation-label"/>
                                     <Button text="Create Account" maxWidth="Infinity" styleClass="button-primary" onAction="#handleCreateUser"/>
                                 </VBox>
                             </HBox>
                         </Tab>
 
                         <Tab text="Projects">
-                            <VBox spacing="14" style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #E4E4E7; -fx-border-radius: 8; -fx-padding: 20;">
-                                <HBox alignment="CENTER_LEFT" spacing="10">
-                                    <VBox>
+                            <VBox spacing="16" styleClass="admin-panel">
+                                <HBox alignment="CENTER_LEFT" spacing="12">
+                                    <VBox spacing="4">
                                         <Label text="Project Oversight" styleClass="section-title"/>
-                                        <Label text="Review all projects and update their lifecycle state." styleClass="section-sub"/>
+                                        <Label text="Monitor lifecycle status and budgets across all projects." styleClass="section-sub"/>
                                     </VBox>
                                     <Region HBox.hgrow="ALWAYS"/>
-                                    <ComboBox fx:id="projectStatusComboBox" prefWidth="170"/>
-                                    <Button text="Update Status" styleClass="button-primary" onAction="#handleUpdateProjectStatus"/>
+                                    <ComboBox fx:id="projectStatusComboBox" prefWidth="180" styleClass="light-combo-box"/>
+                                    <Button text="Record Expense" styleClass="btn-outline" onAction="#handleRecordExpense"/>
+                                    <Button text="Update Status" styleClass="btn-green" onAction="#handleUpdateProjectStatus"/>
                                     <Button text="Delete Project" styleClass="btn-danger" onAction="#handleDeleteProject"/>
                                 </HBox>
-                                <TableView fx:id="projectsTableView" VBox.vgrow="ALWAYS" styleClass="light-table">
+                                <TableView fx:id="projectsTableView" VBox.vgrow="ALWAYS" styleClass="light-table" prefHeight="480">
                                     <columns>
-                                        <TableColumn fx:id="colProjectName" text="Project" prefWidth="260"/>
+                                        <TableColumn fx:id="colProjectName" text="Project" prefWidth="240"/>
                                         <TableColumn fx:id="colProjectManager" text="Manager" prefWidth="180"/>
                                         <TableColumn fx:id="colProjectStatus" text="Status" prefWidth="130"/>
                                         <TableColumn fx:id="colProjectBudget" text="Budget" prefWidth="140"/>
+                                        <TableColumn fx:id="colProjectRemainingBalance" text="Remaining" prefWidth="150"/>
                                         <TableColumn fx:id="colProjectDeadline" text="Deadline" prefWidth="130"/>
                                     </columns>
                                     <columnResizePolicy>
@@ -175,12 +226,12 @@
                         </Tab>
 
                         <Tab text="Tasks">
-                            <VBox spacing="14" style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #E4E4E7; -fx-border-radius: 8; -fx-padding: 20;">
-                                <VBox>
+                            <VBox spacing="16" styleClass="admin-panel">
+                                <VBox spacing="4">
                                     <Label text="Task Overview" styleClass="section-title"/>
-                                    <Label text="All assigned and pending work across projects." styleClass="section-sub"/>
+                                    <Label text="All assigned and pending work across the organization." styleClass="section-sub"/>
                                 </VBox>
-                                <TableView fx:id="tasksTableView" VBox.vgrow="ALWAYS" styleClass="light-table">
+                                <TableView fx:id="tasksTableView" VBox.vgrow="ALWAYS" styleClass="light-table" prefHeight="480">
                                     <columns>
                                         <TableColumn fx:id="colTaskTitle" text="Task" prefWidth="240"/>
                                         <TableColumn fx:id="colTaskProject" text="Project" prefWidth="200"/>
@@ -197,7 +248,10 @@
                     </tabs>
                 </TabPane>
 
-                <Label fx:id="statusLabel" text="Ready." style="-fx-text-fill: #71717A; -fx-font-size: 12px;"/>
+                <HBox styleClass="admin-status-bar" alignment="CENTER_LEFT">
+                    <Label text="●" style="-fx-text-fill: #00B37E; -fx-font-size: 10px;"/>
+                    <Label fx:id="statusLabel" text="Ready." styleClass="admin-status-text"/>
+                </HBox>
             </VBox>
         </ScrollPane>
     </VBox>

@@ -244,7 +244,7 @@ public class ScrumBoardController {
 
         // ── Project name ──
         String projectName = resolveProjectName(task.getProjectId());
-        Label projectLabel = new Label("📁 " + projectName);
+        Label projectLabel = new Label(projectName);
         projectLabel.setStyle(
                 "-fx-font-size: 10px;" +
                         "-fx-text-fill: #94A3B8;" +
@@ -288,7 +288,7 @@ public class ScrumBoardController {
         String dueText = (task.getDueDate() == null || task.getDueDate().isBlank())
                 ? "No due date"
                 : task.getDueDate();
-        Label dueLabel = new Label("📅 " + dueText);
+        Label dueLabel = new Label(dueText);
         dueLabel.setStyle(
                 "-fx-font-size: 10px;" +
                         "-fx-text-fill: " + getDueDateColor(task) + ";");
@@ -467,12 +467,12 @@ public class ScrumBoardController {
     private String getTypeLabel(Task task) {
         String t = task.getTitle() == null ? "" : task.getTitle().toLowerCase();
         if (t.contains("design"))
-            return "🎨 Design";
+            return "DESIGN";
         if (t.contains("review"))
-            return "🔍 Review";
+            return "REVIEW";
         if (t.contains("meeting"))
-            return "📅 Meeting";
-        return "⚙ Dev";
+            return "MEETING";
+        return "DEVELOPMENT";
     }
 
     private String getTypeBg(Task task) {

@@ -64,7 +64,10 @@
                             <Label fx:id="welcomeLabel" style="-fx-text-fill: #848D95; -fx-font-size: 13px;" text="Welcome back, Manager" />
                         </children>
                     </VBox>
-                    <Button styleClass="button-primary" text="➕ Create New Project" onAction="#handleCreateProject"/>
+                    <HBox spacing="10">
+                        <Button styleClass="btn-outline" text="🧾 Record Expense" onAction="#handleRecordExpense"/>
+                        <Button styleClass="button-primary" text="➕ Create New Project" onAction="#handleCreateProject"/>
+                    </HBox>
                 </children>
             </HBox>
 
@@ -94,6 +97,15 @@
                             <HBox alignment="TOP_RIGHT"><Label style="-fx-text-fill: #00B37E; -fx-font-size: 11px; -fx-background-color: #E6F7F2; -fx-background-radius: 4px; -fx-padding: 2 6 2 6;" text="18% vs last month" /></HBox>
                             <Label fx:id="budgetTotalLabel" style="-fx-text-fill: #1C1F21; -fx-font-size: 28px; -fx-font-weight: bold;" text="Tk 2,80,000" />
                             <Label style="-fx-text-fill: #848D95; -fx-font-size: 13px;" text="Total Project Budget" />
+                        </children>
+                    </VBox>
+
+                    <VBox prefWidth="220.0" spacing="12.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 12px; -fx-border-color: #E5E9EB; -fx-border-radius: 12px;" HBox.hgrow="ALWAYS">
+                        <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                        <children>
+                            <HBox alignment="TOP_RIGHT"><Label fx:id="financialHealthLabel" style="-fx-text-fill: #00B37E; -fx-font-size: 11px; -fx-background-color: #E6F7F2; -fx-background-radius: 4px; -fx-padding: 2 6 2 6;" text="Healthy balance" /></HBox>
+                            <Label fx:id="remainingBalanceLabel" style="-fx-text-fill: #1C1F21; -fx-font-size: 28px; -fx-font-weight: bold;" text="Tk 0.00" />
+                            <Label style="-fx-text-fill: #848D95; -fx-font-size: 13px;" text="Remaining Balance" />
                         </children>
                     </VBox>
 

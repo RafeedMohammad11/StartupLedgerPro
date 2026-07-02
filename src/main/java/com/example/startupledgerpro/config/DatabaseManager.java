@@ -1,9 +1,12 @@
 package com.example.startupledgerpro.config;
 
+import com.example.startupledgerpro.exception.DatabaseConnectionException;
+
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class DatabaseManager {
     private static DatabaseManager instance;
@@ -29,20 +32,26 @@ public class DatabaseManager {
         try {
             Class.forName("org.sqlite.JDBC");
             this.connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-            this.connection.createStatement().execute("PRAGMA foreign_keys = ON;");
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize SQLite database connection", e);
+            try (Statement statement = this.connection.createStatement()) {
+                statement.execute("PRAGMA foreign_keys = ON;");
+            }
+        } catch (ClassNotFoundException e) {
+            throw new DatabaseConnectionException("SQLite JDBC driver was not found on the classpath.", e);
+        } catch (SQLException e) {
+            throw new DatabaseConnectionException("Failed to initialize SQLite database connection.", e);
         }
     }
 
     public Connection getConnection() {
+        Connection activeConnection = null;
         try {
             if (connection == null || connection.isClosed()) {
                 initializeConnection();
             }
+            activeConnection = connection;
+            return activeConnection;
         } catch (SQLException e) {
-            initializeConnection();
+            throw new DatabaseConnectionException("Unable to access the SQLite connection.", e);
         }
-        return connection;
     }
 }

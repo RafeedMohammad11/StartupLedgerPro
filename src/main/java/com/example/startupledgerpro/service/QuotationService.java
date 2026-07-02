@@ -1,10 +1,12 @@
 package com.example.startupledgerpro.service;
 
+import com.example.startupledgerpro.exception.QuotationExportException;
 import com.example.startupledgerpro.model.Quotation;
 import com.example.startupledgerpro.model.QuotationItem;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -19,15 +21,21 @@ public class QuotationService {
         return quotation;
     }
 
-    public File exportToPdf(Quotation quotation, File outputFile) throws Exception {
-        Objects.requireNonNull(quotation, "Quotation must not be null");
-        Objects.requireNonNull(outputFile, "Output file must not be null");
+    public File exportToPdf(Quotation quotation, File outputFile) {
+        try {
+            Objects.requireNonNull(quotation, "Quotation must not be null");
+            Objects.requireNonNull(outputFile, "Output file must not be null");
 
-        String html = buildHtml(quotation);
-        try (OutputStream out = new FileOutputStream(outputFile)) {
-            out.write(html.getBytes(StandardCharsets.UTF_8));
+            String html = buildHtml(quotation);
+            try (OutputStream out = new FileOutputStream(outputFile)) {
+                out.write(html.getBytes(StandardCharsets.UTF_8));
+            }
+            return outputFile;
+        } catch (IOException e) {
+            throw new QuotationExportException("Failed to write quotation export file.", e);
+        } catch (NullPointerException e) {
+            throw new QuotationExportException("Quotation export failed because the output file is missing.", e);
         }
-        return outputFile;
     }
 
     private String buildHtml(Quotation quotation) {

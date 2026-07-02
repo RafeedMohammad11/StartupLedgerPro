@@ -6,6 +6,7 @@ import com.example.startupledgerpro.model.Task;
 import com.example.startupledgerpro.model.User;
 import com.example.startupledgerpro.model.enums.TaskStatus;
 import com.example.startupledgerpro.session.SessionManager;
+import com.example.startupledgerpro.util.ExceptionHandler;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -177,20 +178,32 @@ public class EmployeeDashboardController {
     @FXML
     private void handleMarkInProgress() {
         Task selectedTask = employeeTasksTableView.getSelectionModel().getSelectedItem();
-        if (selectedTask != null) {
+        if (selectedTask == null) {
+            ExceptionHandler.showWarning("Update Task", "Select a task first.");
+            return;
+        }
+        try {
             AppFactory.taskService.updateTaskStatus(selectedTask.getId(), TaskStatus.IN_PROGRESS);
             loadEmployeeDashboardData();
             refreshNotifications();
+        } catch (RuntimeException ex) {
+            ExceptionHandler.handle("Update Task", ex);
         }
     }
 
     @FXML
     private void handleMarkDone() {
         Task selectedTask = employeeTasksTableView.getSelectionModel().getSelectedItem();
-        if (selectedTask != null) {
+        if (selectedTask == null) {
+            ExceptionHandler.showWarning("Update Task", "Select a task first.");
+            return;
+        }
+        try {
             AppFactory.taskService.updateTaskStatus(selectedTask.getId(), TaskStatus.DONE);
             loadEmployeeDashboardData();
             refreshNotifications();
+        } catch (RuntimeException ex) {
+            ExceptionHandler.handle("Update Task", ex);
         }
     }
 

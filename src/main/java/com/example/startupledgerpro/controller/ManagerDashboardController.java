@@ -1,6 +1,5 @@
 package com.example.startupledgerpro.controller;
 
-import com.example.startupledgerpro.controller.ScrumBoardController;
 import com.example.startupledgerpro.factory.AppFactory;
 import com.example.startupledgerpro.model.Project;
 import com.example.startupledgerpro.model.Task;
@@ -8,8 +7,10 @@ import com.example.startupledgerpro.model.User;
 import com.example.startupledgerpro.model.enums.ProjectStatus;
 import com.example.startupledgerpro.model.enums.TaskStatus;
 import com.example.startupledgerpro.model.enums.UserRole;
+import com.example.startupledgerpro.util.CurrencyUtil;
 import com.example.startupledgerpro.service.TaskService;
 import com.example.startupledgerpro.session.SessionManager;
+import com.example.startupledgerpro.util.ExceptionHandler;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -28,335 +29,447 @@ import javafx.scene.control.TableView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ManagerDashboardController {
 
-    @FXML
-    private TableView<Project> projectTableView;
-    @FXML
-    private TableColumn<Project, String> colProjectName;
-    @FXML
-    private TableColumn<Project, String> colEngineer;
-    @FXML
-    private TableColumn<Project, Project> colProgress; // 💡 Upgraded to Project object type for custom node rendering
-    @FXML
-    private Label welcomeLabel;
-    @FXML
-    private VBox todoColumn;
-    @FXML
-    private VBox inProgressColumn;
-    @FXML
-    private VBox doneColumn;
-    @FXML
-    private Label scrumStatusLabel;
-    @FXML
-    private Label scrumProjectLabel;
-    @FXML
-    private Label todoCountLabel;
-    @FXML
-    private Label inProgressCountLabel;
-    @FXML
-    private Label doneCountLabel;
-    @FXML
-    private Label engineerCountLabel;
-    @FXML
-    private Label activeProjectCountLabel;
-    @FXML
-    private Label budgetTotalLabel;
-    @FXML
-    private Label pendingTasksCountLabel;
+    @FXML private TableView<Project>           projectTableView;
+    @FXML private TableColumn<Project, String>  colProjectName;
+    @FXML private TableColumn<Project, String>  colEngineer;
+    @FXML private TableColumn<Project, Project> colProgress;
+    @FXML private Label                         welcomeLabel;
+    @FXML private VBox                          todoColumn;
+    @FXML private VBox                          inProgressColumn;
+    @FXML private VBox                          doneColumn;
+    @FXML private Label                         scrumStatusLabel;
+    @FXML private Label                         scrumProjectLabel;
+    @FXML private Label                         todoCountLabel;
+    @FXML private Label                         inProgressCountLabel;
+    @FXML private Label                         doneCountLabel;
+    @FXML private Label                         engineerCountLabel;
+    @FXML private Label                         activeProjectCountLabel;
+    @FXML private Label                         budgetTotalLabel;
+    @FXML private Label                         remainingBalanceLabel;
+    @FXML private Label                         financialHealthLabel;
+    @FXML private Label                         pendingTasksCountLabel;
+
     private String selectedProjectId;
     private String selectedProjectName;
-    private Stage boardViewStage;
+    private Stage  boardViewStage;
+
     private static final TaskService taskService = AppFactory.taskService;
 
+    // Cache userId → name to avoid repeated DB hits per card
+    private final Map<String, String> userNameCache = new HashMap<>();
+
+    // ── INIT ──────────────────────────────────────────────────────
     @FXML
     public void initialize() {
-        // Show logged-in manager's name
         String name = SessionManager.getInstance().getCurrentUser().getName();
         welcomeLabel.setText("Welcome back, " + name);
 
-        // Wire table columns to Project fields
+        setupTableColumns();
+        loadProjects();
+        loadMiniScrumBoard(null);
+        refreshDashboardCards();
+    }
+
+    // ── TABLE SETUP ───────────────────────────────────────────────
+    private void setupTableColumns() {
         colProjectName.setCellValueFactory(
-                data -> new SimpleStringProperty(data.getValue().getName()));
-        colEngineer.setCellValueFactory(
-                data -> new SimpleStringProperty(data.getValue().getManagerId()));
+                data -> new SimpleStringProperty(data.getValue().getName())
+        );
 
-        // ── 🔥 UPGRADE: CONFIGURING CUSTOM PROGRESS BAR GRAPHICS COLUMN ──
+        // Resolve manager name from ID
+        colEngineer.setCellValueFactory(data -> {
+            String managerId = data.getValue().getManagerId();
+            String managerName = resolveUserName(managerId);
+            return new SimpleStringProperty(managerName);
+        });
+
         colProgress.setCellValueFactory(
-                data -> new SimpleObjectProperty<>(data.getValue()));
-        colProgress.setCellFactory(column -> new TableCell<Project, Project>() {
-            private final ProgressBar progressBar = new ProgressBar();
-            private final Label statusLabel = new Label();
-            private final VBox container = new VBox(4, statusLabel, progressBar);
-
+                data -> new SimpleObjectProperty<>(data.getValue())
+        );
+        colProgress.setCellFactory(col -> new TableCell<>() {
+            private final ProgressBar bar   = new ProgressBar();
+            private final Label       lbl   = new Label();
+            private final VBox        box   = new VBox(4, lbl, bar);
             {
-                container.setAlignment(Pos.CENTER_LEFT);
-                progressBar.setMaxWidth(Double.MAX_VALUE);
-                progressBar.getStyleClass().add("table-progress-bar");
-                statusLabel.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
+                box.setAlignment(Pos.CENTER_LEFT);
+                bar.setMaxWidth(Double.MAX_VALUE);
+                lbl.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
             }
-
             @Override
-            protected void updateItem(Project project, boolean empty) {
-                super.updateItem(project, empty);
-
-                if (empty || project == null) {
-                    setGraphic(null);
-                } else {
-                    double progressValue = 0.0;
-                    String status = project.getStatus() != null ? project.getStatus().toString() : "PLANNING";
-
-                    // Map structural progress percentage bands matching your Admin style blueprint
-                    switch (status) {
-                        case "PLANNING" -> {
-                            progressValue = 0.20;
-                            statusLabel.setText("PLANNING (20%)");
-                            statusLabel.setStyle("-fx-text-fill: #7C4DFF;"); // Deep executive purple
-                        }
-                        case "ACTIVE", "IN_PROGRESS" -> {
-                            progressValue = 0.65;
-                            statusLabel.setText("ACTIVE (65%)");
-                            statusLabel.setStyle("-fx-text-fill: #00B37E;"); // Mint team green
-                        }
-                        case "COMPLETED" -> {
-                            progressValue = 1.0;
-                            statusLabel.setText("COMPLETED (100%)");
-                            statusLabel.setStyle("-fx-text-fill: #00875A;"); // Dark completion green
-                        }
-                        default -> {
-                            progressValue = 0.0;
-                            statusLabel.setText(status);
-                            statusLabel.setStyle("-fx-text-fill: #848D95;");
-                        }
-                    }
-
-                    progressBar.setProgress(progressValue);
-                    setGraphic(container);
+            protected void updateItem(Project p, boolean empty) {
+                super.updateItem(p, empty);
+                if (empty || p == null) { setGraphic(null); return; }
+                String status = p.getStatus() != null ? p.getStatus().name() : "PLANNING";
+                switch (status) {
+                    case "PLANNING"    -> { bar.setProgress(0.20); lbl.setText("PLANNING (20%)");   lbl.setStyle("-fx-text-fill: #7C4DFF; -fx-font-size: 11px; -fx-font-weight: bold;"); }
+                    case "ACTIVE"      -> { bar.setProgress(0.65); lbl.setText("ACTIVE (65%)");     lbl.setStyle("-fx-text-fill: #00B37E; -fx-font-size: 11px; -fx-font-weight: bold;"); }
+                    case "COMPLETED"   -> { bar.setProgress(1.00); lbl.setText("COMPLETED (100%)"); lbl.setStyle("-fx-text-fill: #00875A; -fx-font-size: 11px; -fx-font-weight: bold;"); }
+                    default            -> { bar.setProgress(0.00); lbl.setText(status);              lbl.setStyle("-fx-text-fill: #848D95; -fx-font-size: 11px; -fx-font-weight: bold;"); }
                 }
+                setGraphic(box);
             }
         });
 
-        // ── 🖱️ UPGRADE: ROW SELECTION DOUBLE-CLICK LISTENER ──────────────────
+        // Double-click → project details
         projectTableView.setRowFactory(tv -> {
             TableRow<Project> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                // Route user to detailed page view when valid record row is double-clicked
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    Project selectedProject = row.getItem();
-                    navigateToProjectDetails(selectedProject);
-                }
+            row.setOnMouseClicked(e -> {
+                if (e.getClickCount() == 2 && !row.isEmpty())
+                    navigateToProjectDetails(row.getItem());
             });
             return row;
         });
 
-        projectTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            onProjectSelected(newSelection);
-        });
-
-        // Load projects from DB
-        loadProjects();
-        loadScrumBoard(null);
-        refreshDashboardCards();
+        // Single-click → filter mini scrum board
+        projectTableView.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, old, newVal) -> onProjectSelected(newVal));
     }
 
-    // ── LOAD PROJECTS INTO TABLE ──────────────────────────────────
+    // ── PROJECTS ──────────────────────────────────────────────────
     private void loadProjects() {
         String managerId = SessionManager.getInstance().getCurrentUser().getId();
-        List<Project> projects = AppFactory.projectService
-                .getProjectsByManager(managerId);
+        List<Project> projects = AppFactory.projectService.getProjectsByManager(managerId);
         projectTableView.setItems(FXCollections.observableArrayList(projects));
     }
 
-    // ── SCRUM BOARD HELPERS ─────────────────────────────────────
-    private void loadScrumBoard(String projectId) {
+    // ── MINI SCRUM BOARD (compact — for dashboard panel) ──────────
+    private void loadMiniScrumBoard(String projectId) {
         List<Task> tasks = projectId == null
                 ? taskService.getAllTasks()
                 : taskService.getTasksByProject(projectId);
 
-        configureDrop(todoColumn, TaskStatus.TODO);
+        int todoCount       = countByStatus(tasks, TaskStatus.TODO);
+        int inProgressCount = countByStatus(tasks, TaskStatus.IN_PROGRESS);
+        int doneCount       = countByStatus(tasks, TaskStatus.DONE);
+
+        populateMiniColumn(todoColumn,       tasks, TaskStatus.TODO);
+        populateMiniColumn(inProgressColumn, tasks, TaskStatus.IN_PROGRESS);
+        populateMiniColumn(doneColumn,       tasks, TaskStatus.DONE);
+
+        // Configure drop targets
+        configureDrop(todoColumn,       TaskStatus.TODO);
         configureDrop(inProgressColumn, TaskStatus.IN_PROGRESS);
-        configureDrop(doneColumn, TaskStatus.DONE);
+        configureDrop(doneColumn,       TaskStatus.DONE);
 
-        int todoCount = (int) tasks.stream().filter(task -> matchesStatus(task.getStatus(), TaskStatus.TODO)).count();
-        int inProgressCount = (int) tasks.stream()
-                .filter(task -> matchesStatus(task.getStatus(), TaskStatus.IN_PROGRESS)).count();
-        int doneCount = (int) tasks.stream().filter(task -> matchesStatus(task.getStatus(), TaskStatus.DONE)).count();
-
-        populateColumn(todoColumn, tasks, TaskStatus.TODO);
-        populateColumn(inProgressColumn, tasks, TaskStatus.IN_PROGRESS);
-        populateColumn(doneColumn, tasks, TaskStatus.DONE);
-
-        String source = projectId == null ? "all projects" : "project " + selectedProjectName;
+        String source = projectId == null
+                ? "all projects"
+                : selectedProjectName;
         scrumStatusLabel.setText("Loaded " + tasks.size() + " task(s) across " + source + ".");
         scrumProjectLabel.setText(projectId == null ? "Filter: All projects" : "Filter: " + selectedProjectName);
         todoCountLabel.setText(todoCount + " tasks");
         inProgressCountLabel.setText(inProgressCount + " tasks");
         doneCountLabel.setText(doneCount + " tasks");
-        refreshDashboardCards();
     }
 
-    private void populateColumn(VBox column, List<Task> tasks, TaskStatus targetStatus) {
+    // ── COMPACT COLUMN — title + assignee chip only ───────────────
+    private void populateMiniColumn(VBox column, List<Task> tasks, TaskStatus status) {
         column.getChildren().clear();
 
-        List<Task> matchingTasks = tasks.stream()
-                .filter(task -> matchesStatus(task.getStatus(), targetStatus))
+        List<Task> matching = tasks.stream()
+                .filter(t -> matchesStatus(t.getStatus(), status))
                 .toList();
 
-        if (matchingTasks.isEmpty()) {
-            Label emptyLabel = new Label("No " + targetStatus.name().replace('_', ' ').toLowerCase() + " tasks");
-            emptyLabel.setWrapText(true);
-            emptyLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #94A3B8;");
-            column.getChildren().add(emptyLabel);
+        if (matching.isEmpty()) {
+            Label empty = new Label("No tasks");
+            empty.setStyle(
+                    "-fx-font-size: 11px;" +
+                            "-fx-text-fill: #CBD5E1;" +
+                            "-fx-padding: 8 0 0 0;"
+            );
+            column.getChildren().add(empty);
             return;
         }
 
-        for (Task task : matchingTasks) {
-            column.getChildren().add(createTaskCard(task));
+        // Show max 3 cards in mini view — keeps panel clean
+        List<Task> visible = matching.size() > 3
+                ? matching.subList(0, 3)
+                : matching;
+
+        for (Task task : visible) {
+            column.getChildren().add(buildMiniCard(task));
+        }
+
+        // If more than 3, show a "+N more" label
+        if (matching.size() > 3) {
+            Label more = new Label("+" + (matching.size() - 3) + " more  →  See Board");
+            more.setStyle(
+                    "-fx-font-size: 10px;" +
+                            "-fx-text-fill: #00B37E;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-padding: 4 0 0 0;"
+            );
+            more.setOnMouseClicked(e -> handleOpenBoardView());
+            column.getChildren().add(more);
         }
     }
 
-    private boolean matchesStatus(TaskStatus actualStatus, TaskStatus expectedStatus) {
-        if (actualStatus == null) {
-            return expectedStatus == TaskStatus.TODO;
-        }
-        return actualStatus == expectedStatus;
-    }
+    // ── COMPACT TASK CARD ─────────────────────────────────────────
+    private Node buildMiniCard(Task task) {
+        VBox card = new VBox(6);
+        card.setMaxWidth(Double.MAX_VALUE);
+        String cardStyle =
+                "-fx-background-color: #FFFFFF;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-border-color: #E2E8F0;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-border-width: 1;" +
+                        "-fx-padding: 8 10;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(15,23,42,0.05), 4, 0, 0, 1);" +
+                        "-fx-cursor: hand;";
+        card.setStyle(cardStyle);
 
-    private Node createTaskCard(Task task) {
-        VBox card = new VBox(8);
-        card.setPrefWidth(Double.MAX_VALUE);
-        card.setStyle(
-                "-fx-background-color: #FFFFFF; -fx-background-radius: 12px; -fx-padding: 16px; -fx-border-color: #E5E9EB; -fx-border-radius: 12px; -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.08), 10, 0.16, 0, 2);");
+        // Title — truncated, single line
+        Label title = new Label(task.getTitle());
+        title.setMaxWidth(Double.MAX_VALUE);
+        title.setStyle(
+                "-fx-font-size: 12px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #0F172A;" +
+                        "-fx-max-width: Infinity;"
+        );
+        title.setEllipsisString("...");
+        title.setWrapText(false);
 
-        Label titleLabel = new Label(task.getTitle());
-        titleLabel.setWrapText(true);
-        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #0F172A;");
+        // Bottom row: assignee avatar + name + due date
+        HBox meta = new HBox(6);
+        meta.setAlignment(Pos.CENTER_LEFT);
 
-        Label descriptionLabel = new Label(task.getDescription() == null || task.getDescription().isBlank()
-                ? "No description provided"
-                : task.getDescription());
-        descriptionLabel.setWrapText(true);
-        descriptionLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #475569; -fx-padding: 4 0 0 0;");
+        // Resolve real name
+        String assigneeName = resolveUserName(task.getAssigneeId());
+        String initials     = getInitials(assigneeName);
 
-        String assigneeText = task.getAssigneeId() == null || task.getAssigneeId().isBlank()
-                ? "Unassigned"
-                : "Assignee: " + task.getAssigneeId();
-        Label metaLabel = new Label(assigneeText + " • Due: "
-                + (task.getDueDate() == null || task.getDueDate().isBlank() ? "TBD" : task.getDueDate()));
-        metaLabel.setWrapText(true);
-        metaLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #94A3B8; -fx-padding: 4 0 0 0;");
+        // Tiny avatar
+        StackPane avatar = new StackPane();
+        avatar.setPrefSize(18, 18);
+        avatar.setMinSize(18, 18);
+        avatar.setStyle(
+                "-fx-background-color: " + getAvatarColor(task.getAssigneeId()) + ";" +
+                        "-fx-background-radius: 9;"
+        );
+        Label avLbl = new Label(initials);
+        avLbl.setStyle(
+                "-fx-text-fill: white;" +
+                        "-fx-font-size: 7px;" +
+                        "-fx-font-weight: bold;"
+        );
+        avatar.getChildren().add(avLbl);
 
-        Label statusBadge = new Label(task.getStatus() != null ? task.getStatus().name().replace('_', ' ') : "TODO");
-        statusBadge.setStyle(
-                "-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #1D4ED8; -fx-background-color: rgba(59,130,246,0.12); -fx-background-radius: 999px; -fx-padding: 4 10 4 10;");
+        Label assigneeLbl = new Label(assigneeName);
+        assigneeLbl.setStyle("-fx-font-size: 10px; -fx-text-fill: #64748B;");
 
-        card.getChildren().addAll(statusBadge, titleLabel, descriptionLabel, metaLabel);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        String due = (task.getDueDate() == null || task.getDueDate().isBlank())
+                ? "—" : task.getDueDate();
+        Label dueLbl = new Label(due);
+        dueLbl.setStyle("-fx-font-size: 10px; -fx-text-fill: " + getDueDateColor(task) + ";");
+
+        meta.getChildren().addAll(avatar, assigneeLbl, spacer, dueLbl);
+        card.getChildren().addAll(title, meta);
+
+        // Hover
+        card.setOnMouseEntered(e -> card.setStyle(cardStyle.replace("#FFFFFF", "#F8FAFF").replace("#E2E8F0", "#C7D2FE")));
+        card.setOnMouseExited(e -> card.setStyle(cardStyle));
+
         configureDrag(card, task);
         return card;
     }
 
+    // ── DRAG ──────────────────────────────────────────────────────
     private void configureDrag(Node node, Task task) {
         node.setOnDragDetected(event -> {
-            Dragboard dragboard = node.startDragAndDrop(TransferMode.MOVE);
-            ClipboardContent content = new ClipboardContent();
-            content.putString(task.getId());
-            dragboard.setContent(content);
-            dragboard.setDragView(node.snapshot(null, null));
+            Dragboard db = node.startDragAndDrop(TransferMode.MOVE);
+            ClipboardContent cc = new ClipboardContent();
+            cc.putString(task.getId());
+            db.setContent(cc);
             node.setOpacity(0.5);
             event.consume();
         });
-
         node.setOnDragDone(event -> {
             node.setOpacity(1.0);
             event.consume();
         });
     }
 
+    // ── DROP ──────────────────────────────────────────────────────
     private void configureDrop(VBox column, TaskStatus targetStatus) {
         String baseStyle = column.getStyle();
-
         column.setOnDragOver(event -> {
             if (event.getGestureSource() != null && event.getDragboard().hasString()) {
                 event.acceptTransferModes(TransferMode.MOVE);
-                column.setStyle(baseStyle + " -fx-border-color: #60A5FA; -fx-border-width: 2px;");
+                column.setStyle(baseStyle + "-fx-border-color: #6366F1; -fx-border-width: 2;");
             }
             event.consume();
         });
-
         column.setOnDragExited(event -> {
             column.setStyle(baseStyle);
             event.consume();
         });
-
         column.setOnDragDropped(event -> {
-            Dragboard dragboard = event.getDragboard();
+            Dragboard db = event.getDragboard();
             boolean success = false;
-
-            if (dragboard.hasString()) {
-                taskService.updateTaskStatus(dragboard.getString(), targetStatus);
-                success = true;
+            if (db.hasString()) {
+                try {
+                    taskService.updateTaskStatus(db.getString(), targetStatus);
+                    loadMiniScrumBoard(selectedProjectId);
+                    refreshDashboardCards();
+                    success = true;
+                } catch (RuntimeException ex) {
+                    String message = ExceptionHandler.resolveMessage(ex);
+                    scrumStatusLabel.setText(message);
+                    ExceptionHandler.showWarning("Update Task", message);
+                }
             }
-
             event.setDropCompleted(success);
+            column.setStyle(baseStyle);
             event.consume();
         });
     }
 
-    @FXML
-    private void handleRefreshScrumBoard() {
-        loadScrumBoard(selectedProjectId);
+    // ── HELPERS ───────────────────────────────────────────────────
+    private String resolveUserName(String userId) {
+        if (userId == null || userId.isBlank()) return "Unassigned";
+        return userNameCache.computeIfAbsent(userId, id ->
+                AppFactory.userRepository.findById(id)
+                        .map(User::getName)
+                        .orElse("Unknown")
+        );
     }
 
-    private void onProjectSelected(Project project) {
-        if (project == null) {
-            selectedProjectId = null;
-            selectedProjectName = null;
-        } else {
-            selectedProjectId = project.getId();
-            selectedProjectName = project.getName();
-        }
-        loadScrumBoard(selectedProjectId);
+    private String getInitials(String name) {
+        if (name == null || name.isBlank() || name.equals("Unassigned")) return "?";
+        String[] parts = name.trim().split("\\s+");
+        return parts.length >= 2
+                ? ("" + parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase()
+                : name.substring(0, Math.min(2, name.length())).toUpperCase();
     }
 
-    @FXML
-    private void handleShowDashboardOverview() {
-        loadProjects();
-        loadScrumBoard(null);
-        scrumStatusLabel.setText("Showing dashboard overview for your managed projects.");
+    private String getAvatarColor(String userId) {
+        if (userId == null || userId.isBlank()) return "#94A3B8";
+        return switch (Math.abs(userId.hashCode()) % 5) {
+            case 0  -> "#6366F1";
+            case 1  -> "#0EA5E9";
+            case 2  -> "#EC4899";
+            case 3  -> "#F59E0B";
+            default -> "#10B981";
+        };
     }
 
-    @FXML
-    private void handleShowEngineerDirectory() {
-        loadProjects();
-        long engineers = AppFactory.userService.getAllUsers().stream()
+    private String getDueDateColor(Task task) {
+        if (task.getDueDate() == null || task.getDueDate().isBlank()) return "#CBD5E1";
+        try {
+            long days = java.time.temporal.ChronoUnit.DAYS.between(
+                    java.time.LocalDate.now(),
+                    java.time.LocalDate.parse(task.getDueDate())
+            );
+            if (days < 0)   return "#EF4444";
+            if (days <= 3)  return "#F59E0B";
+            return "#64748B";
+        } catch (Exception e) { return "#64748B"; }
+    }
+
+    private boolean matchesStatus(TaskStatus actual, TaskStatus expected) {
+        if (actual == null) return expected == TaskStatus.TODO;
+        return actual == expected;
+    }
+
+    private int countByStatus(List<Task> tasks, TaskStatus status) {
+        return (int) tasks.stream()
+                .filter(t -> matchesStatus(t.getStatus(), status))
+                .count();
+    }
+
+    // ── DASHBOARD STAT CARDS ──────────────────────────────────────
+    private void refreshDashboardCards() {
+        String managerId = SessionManager.getInstance().getCurrentUser().getId();
+        List<Project> projects = AppFactory.projectService.getProjectsByManager(managerId);
+
+        double totalBudget = projects.stream().mapToDouble(Project::getBudget).sum();
+        long activeProjects = projects.stream()
+                .filter(p -> p.getStatus() != null && p.getStatus() != ProjectStatus.COMPLETED)
+                .count();
+
+        List<Task> allTasks = projects.stream()
+                .flatMap(p -> taskService.getTasksByProject(p.getId()).stream())
+                .toList();
+
+        long pendingTasks = allTasks.stream()
+                .filter(t -> t.getStatus() != TaskStatus.DONE)
+                .count();
+        long engineers = allTasks.stream()
+                .map(Task::getAssigneeId)
                 .filter(Objects::nonNull)
-                .filter(user -> user.getRole() == UserRole.EMPLOYEE)
-                .filter(User::isActive)
-                .map(User::getId)
+                .filter(id -> !id.isBlank())
                 .distinct()
                 .count();
-        scrumStatusLabel.setText("Engineer directory summary: " + engineers + " active engineers.");
+        double remainingBalance = AppFactory.financialService.getRemainingBalanceForProjects(projects);
+
+        engineerCountLabel.setText(String.valueOf(engineers));
+        activeProjectCountLabel.setText(String.valueOf(activeProjects));
+        budgetTotalLabel.setText(String.format("Tk %,.0f", totalBudget));
+        remainingBalanceLabel.setText(CurrencyUtil.formatBdt(remainingBalance));
+        financialHealthLabel.setText(remainingBalance >= 0 ? "Healthy balance" : "Over budget");
+        pendingTasksCountLabel.setText(String.valueOf(pendingTasks));
     }
 
-    @FXML
-    private void handleShowProjectsOverview() {
+    // ── PROJECT SELECTION ─────────────────────────────────────────
+    private void onProjectSelected(Project project) {
+        if (project == null) {
+            selectedProjectId   = null;
+            selectedProjectName = null;
+        } else {
+            selectedProjectId   = project.getId();
+            selectedProjectName = project.getName();
+        }
+        loadMiniScrumBoard(selectedProjectId);
+    }
+
+    // ── SIDEBAR NAV ───────────────────────────────────────────────
+    @FXML private void handleShowDashboardOverview() {
         loadProjects();
-        scrumStatusLabel.setText("Showing all active projects for your team.");
+        loadMiniScrumBoard(null);
+        refreshDashboardCards();
     }
 
-    @FXML
-    private void handleShowAnalytics() {
+    @FXML private void handleShowEngineerDirectory() {
+        long engineers = AppFactory.userService.getAllUsers().stream()
+                .filter(u -> u.getRole() == UserRole.EMPLOYEE && u.isActive())
+                .distinct().count();
+        scrumStatusLabel.setText("Engineer directory: " + engineers + " active engineers.");
+    }
+
+    @FXML private void handleShowProjectsOverview() {
+        loadProjects();
+        scrumStatusLabel.setText("Showing all projects for your team.");
+    }
+
+    @FXML private void handleShowAnalytics() {
         refreshDashboardCards();
-        scrumStatusLabel.setText("Analytics refreshed for your current project and task portfolio.");
+        scrumStatusLabel.setText("Analytics refreshed.");
+    }
+
+    // ── SCRUM BOARD (full window) ─────────────────────────────────
+    @FXML
+    private void handleRefreshScrumBoard() {
+        loadMiniScrumBoard(selectedProjectId);
     }
 
     @FXML
@@ -366,13 +479,12 @@ public class ManagerDashboardController {
                 boardViewStage.toFront();
                 return;
             }
-
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/manager/scrum-board-view.fxml"));
+                    getClass().getResource("/fxml/manager/scrum-board-view.fxml")
+            );
             Parent root = loader.load();
-
-            ScrumBoardController boardController = loader.getController();
-            boardController.setProjectFilter(selectedProjectId, selectedProjectName);
+            ScrumBoardController ctrl = loader.getController();
+            ctrl.setProjectFilter(selectedProjectId, selectedProjectName);
 
             boardViewStage = new Stage();
             boardViewStage.setTitle("StartupLedger Pro — Scrum Board");
@@ -385,103 +497,81 @@ public class ManagerDashboardController {
         }
     }
 
-    @FXML
-    private void handleCloseBoardView() {
-        if (boardViewStage != null) {
-            boardViewStage.close();
-        }
-    }
-
-    // ── NAVIGATION ROUTING LOGIC ──────────────────────────────────
-    private void navigateToProjectDetails(Project selectedProject) {
-        try {
-            // 1. Point to your details view FXML file
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/manager/project-details.fxml"));
-            Parent root = loader.load(); // Load must happen first!
-
-            // 2. Fetch the correct controller instance from the loader
-            ProjectDetailsController detailsController = loader.getController();
-
-            // 3. Inject the selected project context cleanly
-            System.out.println("Routing user to workspace detail inspection: " + selectedProject.getName());
-            detailsController.setProjectContext(selectedProject);
-
-            // 4. 🔥 FIX: Find the active window stage safely without incorrect casting
-            Stage stage = null;
-
-            // Loop through all open windows to find your active dashboard window stage
-            for (javafx.stage.Window window : javafx.stage.Window.getWindows()) {
-                if (window instanceof Stage && window.isShowing()) {
-                    stage = (Stage) window;
-                    break;
-                }
-            }
-
-            // 5. Swap the scene root view container over smoothly
-            if (stage != null && stage.getScene() != null) {
-                stage.getScene().setRoot(root);
-                stage.setTitle("StartupLedger Pro — " + selectedProject.getName());
-            } else {
-                System.err.println("Error: Could not locate the primary stage window context.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Failed to route transition into Project Workspace Detail view.");
-            e.printStackTrace();
-        }
-    }
-
-    private void refreshDashboardCards() {
-        List<Project> projects = AppFactory.projectService
-                .getProjectsByManager(SessionManager.getInstance().getCurrentUser().getId());
-        double totalBudget = projects.stream()
-                .mapToDouble(Project::getBudget)
-                .sum();
-        long activeProjects = projects.stream()
-                .filter(project -> project.getStatus() != null && project.getStatus() != ProjectStatus.COMPLETED)
-                .count();
-        List<Task> tasks = projects.stream()
-                .flatMap(project -> taskService.getTasksByProject(project.getId()).stream())
-                .toList();
-        long pendingTasks = tasks.stream().filter(task -> task.getStatus() != TaskStatus.DONE).count();
-        long assignedEngineers = tasks.stream()
-                .map(Task::getAssigneeId)
-                .filter(Objects::nonNull)
-                .filter(id -> !id.isBlank())
-                .distinct()
-                .count();
-
-        engineerCountLabel.setText(String.valueOf(assignedEngineers));
-        activeProjectCountLabel.setText(String.valueOf(activeProjects));
-        budgetTotalLabel.setText(String.format("Tk %,.2f", totalBudget));
-        pendingTasksCountLabel.setText(String.valueOf(pendingTasks));
-    }
-
-    // ── OPEN CREATE PROJECT MODAL ─────────────────────────────────
+    // ── CREATE PROJECT MODAL ──────────────────────────────────────
     @FXML
     private void handleCreateProject() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/manager/create-project-modal.fxml"));
+                    getClass().getResource("/fxml/manager/create-project-modal.fxml")
+            );
             Parent root = loader.load();
+            Stage modal = new Stage();
+            modal.setTitle("Create New Project");
+            modal.initModality(Modality.WINDOW_MODAL);
+            modal.initOwner(projectTableView.getScene().getWindow());
+            modal.setScene(new Scene(root));
+            modal.setResizable(false);
+            modal.showAndWait();
 
-            Stage modalStage = new Stage();
-            modalStage.setTitle("Create New Project");
-            modalStage.initModality(Modality.WINDOW_MODAL);
-            modalStage.initOwner(projectTableView.getScene().getWindow());
-            modalStage.setScene(new Scene(root));
-            modalStage.setResizable(false);
-
-            // Block until user closes the modal
-            modalStage.showAndWait();
-
-            // Refresh table if project was saved
-            CreateProjectModalController controller = loader.getController();
-            if (controller.isSaveClicked()) {
+            CreateProjectModalController ctrl = loader.getController();
+            if (ctrl.isSaveClicked()) {
                 loadProjects();
+                refreshDashboardCards();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    @FXML
+    private void handleRecordExpense() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/shared/record-expense-modal.fxml")
+            );
+            Parent root = loader.load();
+            RecordExpenseModalController ctrl = loader.getController();
+            String managerId = SessionManager.getInstance().getCurrentUser().getId();
+            ctrl.setProjects(AppFactory.projectService.getProjectsByManager(managerId));
+
+            Stage modal = new Stage();
+            modal.setTitle("Record Expense");
+            modal.initModality(Modality.WINDOW_MODAL);
+            modal.initOwner(projectTableView.getScene().getWindow());
+            modal.setScene(new Scene(root));
+            modal.setResizable(false);
+            modal.showAndWait();
+
+            if (ctrl.wasSaved()) {
+                refreshDashboardCards();
+                scrumStatusLabel.setText("Expense recorded successfully.");
+            }
+        } catch (Exception e) {
+            ExceptionHandler.handle("Record Expense", e);
+        }
+    }
+
+    // ── PROJECT DETAILS ───────────────────────────────────────────
+    private void navigateToProjectDetails(Project project) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/manager/project-details.fxml")
+            );
+            Parent root = loader.load();
+            ProjectDetailsController ctrl = loader.getController();
+            ctrl.setProjectContext(project);
+
+            Stage stage = null;
+            for (javafx.stage.Window w : javafx.stage.Window.getWindows()) {
+                if (w instanceof Stage && w.isShowing()) {
+                    stage = (Stage) w;
+                    break;
+                }
+            }
+            if (stage != null && stage.getScene() != null) {
+                stage.getScene().setRoot(root);
+                stage.setTitle("StartupLedger Pro — " + project.getName());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -493,10 +583,11 @@ public class ManagerDashboardController {
         try {
             SessionManager.getInstance().logout();
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/login.fxml"));
+                    getClass().getResource("/fxml/login.fxml")
+            );
             Parent root = loader.load();
             Stage stage = (Stage) projectTableView.getScene().getWindow();
-            stage.setScene(new Scene(root, 1000, 700));
+            stage.setScene(new Scene(root, 1100, 680));
             stage.setTitle("StartupLedger Pro — Login");
             stage.setResizable(false);
             stage.centerOnScreen();

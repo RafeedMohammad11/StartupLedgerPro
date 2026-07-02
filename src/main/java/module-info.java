@@ -22,8 +22,8 @@ module com.example.startupledgerpro {
     // 3. Open your packages so JavaFX's reflection mechanism can load your FXML
     // files cleanly
     opens com.example.startupledgerpro to javafx.fxml;
-    opens com.example.startupledgerpro.controller to javafx.fxml; // 🔓 Crucial fix for your UI controllers!
-    opens com.example.startupledgerpro.service to javafx.fxml; // 🔓 Safeguard for service references
+    opens com.example.startupledgerpro.controller to javafx.fxml;
+    opens com.example.startupledgerpro.service to javafx.fxml; // Safeguard for service references
     opens com.example.startupledgerpro.model to javafx.base;
 
     exports com.example.startupledgerpro;

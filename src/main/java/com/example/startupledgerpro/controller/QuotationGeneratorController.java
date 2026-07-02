@@ -5,6 +5,7 @@ import com.example.startupledgerpro.model.Project;
 import com.example.startupledgerpro.model.Quotation;
 import com.example.startupledgerpro.model.QuotationItem;
 import com.example.startupledgerpro.service.QuotationService;
+import com.example.startupledgerpro.util.ExceptionHandler;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -127,8 +128,8 @@ public class QuotationGeneratorController {
             quotationService.exportToPdf(quotation, target);
             savePdfButton.setText("Saved");
             savePdfButton.setDisable(true);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException ex) {
+            ExceptionHandler.showWarning("Export Quotation", ExceptionHandler.resolveMessage(ex));
             savePdfButton.setText("Export failed");
         }
     }

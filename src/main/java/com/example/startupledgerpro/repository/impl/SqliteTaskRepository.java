@@ -4,6 +4,7 @@ import com.example.startupledgerpro.config.DatabaseManager;
 import com.example.startupledgerpro.model.Task;
 import com.example.startupledgerpro.model.enums.TaskStatus;
 import com.example.startupledgerpro.repository.TaskRepository;
+import com.example.startupledgerpro.util.ErrorMessages;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,7 +43,7 @@ public class SqliteTaskRepository implements TaskRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return tasks;
     }
@@ -61,7 +62,7 @@ public class SqliteTaskRepository implements TaskRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return Optional.empty();
     }
@@ -81,7 +82,7 @@ public class SqliteTaskRepository implements TaskRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return tasks;
     }
@@ -99,7 +100,7 @@ public class SqliteTaskRepository implements TaskRepository {
                 tasks.add(mapRow(rs));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return tasks;
     }
@@ -124,7 +125,7 @@ public class SqliteTaskRepository implements TaskRepository {
             stmt.setString(7, task.getDueDate());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
         return task;
     }
@@ -139,7 +140,7 @@ public class SqliteTaskRepository implements TaskRepository {
             stmt.setString(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(ErrorMessages.DB_ERROR, e);
         }
     }
 }
